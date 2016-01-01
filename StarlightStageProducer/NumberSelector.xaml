@@ -1,0 +1,36 @@
+﻿<UserControl x:Class="StarlightStageProducer.NumberSelector"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:StarlightStageProducer"
+             Width="480" Height="50">
+	<Grid Background="White">
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="180"/>
+			<ColumnDefinition Width="*"/>
+			<ColumnDefinition Width="10"/>
+		</Grid.ColumnDefinitions>
+		<TextBlock x:Name="textTitle" Text="Hello" VerticalAlignment="Center" HorizontalAlignment="Right" FontSize="16" Margin="10,0"/>
+		<Grid Height="20" Grid.Column="1" Margin="10,0">
+			<Ellipse Width="20" Height="20" HorizontalAlignment="Left" Fill="WhiteSmoke"/>
+			<Rectangle Height="20" Margin="10,0" Fill="WhiteSmoke"/>
+			<Ellipse Width="20" Height="20" HorizontalAlignment="Right" Fill="WhiteSmoke"/>
+
+			<Ellipse Width="20" Height="20" HorizontalAlignment="Left" Fill="LightGray" Opacity="0.5"
+					 Margin="0,0,0,0" Tag="0" MouseDown="Ellipse_MouseDown"/>
+			<Ellipse Width="20" Height="20" HorizontalAlignment="Left" Fill="LightGray" Opacity="0.5"
+					 Margin="50,0,0,0" Tag="1" MouseDown="Ellipse_MouseDown"/>
+			<Ellipse Width="20" Height="20" HorizontalAlignment="Left" Fill="LightGray" Opacity="0.5"
+					 Margin="100,0,0,0" Tag="2" MouseDown="Ellipse_MouseDown"/>
+			<Ellipse Width="20" Height="20" HorizontalAlignment="Left" Fill="LightGray" Opacity="0.5"
+					 Margin="150,0,0,0" Tag="3" MouseDown="Ellipse_MouseDown"/>
+			<Ellipse Width="20" Height="20" HorizontalAlignment="Left" Fill="LightGray" Opacity="0.5"
+					 Margin="200,0,0,0" Tag="4" MouseDown="Ellipse_MouseDown"/>
+			<Ellipse Width="20" Height="20" HorizontalAlignment="Left" Fill="LightGray" Opacity="0.5"
+					 Margin="250,0,0,0" Tag="5" MouseDown="Ellipse_MouseDown"/>
+
+			<Ellipse x:Name="selector" Width="20" Height="20" HorizontalAlignment="Left" Fill="{DynamicResource PrimaryBrush}"/>
+		</Grid>
+	</Grid>
+</UserControl>

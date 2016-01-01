@@ -1,0 +1,176 @@
+﻿<Window x:Class="StarlightStageProducer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:StarlightStageProducer"
+        mc:Ignorable="d" Loaded="Window_Loaded" ResizeMode="CanMinimize"
+        Title="Starlight stage deck producer" SizeToContent="WidthAndHeight">
+	<Grid Width="576" Height="450">
+		<Grid x:Name="gridDeck">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="50"/>
+				<RowDefinition Height="100"/>
+				<RowDefinition Height="100"/>
+				<RowDefinition Height="100"/>
+				<RowDefinition Height="100"/>
+			</Grid.RowDefinitions>
+
+			<Grid>
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="50"/>
+					<ColumnDefinition Width="150"/>
+					<ColumnDefinition Width="*"/>
+					<ColumnDefinition Width="50"/>
+					<ColumnDefinition Width="50"/>
+				</Grid.ColumnDefinitions>
+				<local:ImageButton x:Name="buttonOption" Size="50" InnerMargin="10"
+								   Source="Resources/more.png" Response="buttonOption_Response"/>
+				<ComboBox x:Name="comboBurst" Grid.Column="1">
+					<ComboBoxItem Content="None"/>
+					<ComboBoxItem Content="Vocal burst"/>
+					<ComboBoxItem Content="Dance burst"/>
+					<ComboBoxItem Content="Visual burst"/>
+				</ComboBox>
+				<local:ImageButton x:Name="buttonDownload" 
+								   Grid.Column="3" 
+								   HorizontalAlignment="Right" 
+								   Size="50" 
+								   Source="Resources/download.png"
+								   Response="buttonDownload_Response"/>
+				<local:ImageButton x:Name="buttonAlbum" 
+								   Grid.Column="4" 
+								   HorizontalAlignment="Right" 
+								   Size="50" 
+								   Source="Resources/show.png"
+								   Response="buttonAlbum_Click"/>
+			</Grid>
+
+			<Grid Grid.Row="1">
+				<Grid.Background>
+					<LinearGradientBrush StartPoint="0,0" EndPoint="1,0" Opacity="0.2">
+						<GradientStop Color="{DynamicResource CuteColor}" Offset="0.3"/>
+						<GradientStop Color="{DynamicResource CoolColor}" Offset="0.66"/>
+						<GradientStop Color="{DynamicResource PassionColor}" Offset="1"/>
+					</LinearGradientBrush>
+				</Grid.Background>
+				<local:DeckContainer x:Name="deckAll"/>
+			</Grid>
+			<Grid Grid.Row="2">
+				<Grid.Background>
+					<LinearGradientBrush StartPoint="0,0" EndPoint="1,0" Opacity="0.4">
+						<GradientStop Color="Transparent" Offset="0"/>
+						<GradientStop Color="Transparent" Offset="0.2"/>
+						<GradientStop Color="{DynamicResource CuteColor}" Offset="1"/>
+					</LinearGradientBrush>
+				</Grid.Background>
+				<local:DeckContainer x:Name="deckCute"/>
+			</Grid>
+			<Grid Grid.Row="3">
+				<Grid.Background>
+					<LinearGradientBrush StartPoint="0,0" EndPoint="1,0" Opacity="0.4">
+						<GradientStop Color="Transparent" Offset="0"/>
+						<GradientStop Color="Transparent" Offset="0.2"/>
+						<GradientStop Color="{DynamicResource CoolColor}" Offset="1"/>
+					</LinearGradientBrush>
+				</Grid.Background>
+				<local:DeckContainer x:Name="deckCool"/>
+			</Grid>
+			<Grid Grid.Row="4">
+				<Grid.Background>
+					<LinearGradientBrush StartPoint="0,0" EndPoint="1,0" Opacity="0.4">
+						<GradientStop Color="Transparent" Offset="0"/>
+						<GradientStop Color="Transparent" Offset="0.2"/>
+						<GradientStop Color="{DynamicResource PassionColor}" Offset="1"/>
+					</LinearGradientBrush>
+				</Grid.Background>
+				<local:DeckContainer x:Name="deckPassion"/>
+			</Grid>
+		</Grid>
+		<Grid x:Name="gridOption" Visibility="Collapsed">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="480"/>
+				<ColumnDefinition Width="*"/>
+			</Grid.ColumnDefinitions>
+
+			<Grid Background="White">
+				<Grid.RowDefinitions>
+					<RowDefinition Height="50"/>
+					<RowDefinition Height="*"/>
+				</Grid.RowDefinitions>
+				<Grid Background="White">
+					<Grid.ColumnDefinitions>
+						<ColumnDefinition Width="50"/>
+						<ColumnDefinition Width="*"/>
+						<ColumnDefinition Width="50"/>
+					</Grid.ColumnDefinitions>
+					<local:ImageButton x:Name="buttonBackOption" 
+									   Grid.Column="0" HorizontalAlignment="Right" Size="50" 
+									   Source="Resources/back.png"
+									   Response="buttonBackOption_Response"/>
+
+					<TextBlock x:Name="textOptionError" Grid.Column="1" Visibility="Collapsed"
+							   FontSize="16" VerticalAlignment="Center" Margin="10,0"
+							   Foreground="Crimson" Text="합을 5로 맞춰주세요."/>
+
+					<local:ImageButton x:Name="buttonSaveOption"
+									   Grid.Column="2" HorizontalAlignment="Right" Size="50"
+									   Source="Resources/done.png" InnerMargin="10"
+									   Response="buttonSaveOption_Response"/>
+				</Grid>
+				<Grid Grid.Row="1">
+					<StackPanel>
+						<local:NumberSelector x:Name="selectScore" Title="Score"/>
+						<local:NumberSelector x:Name="selectCombo" Title="Combo"/>
+						<local:NumberSelector x:Name="selectPerfectSupport" Title="PerfectSupport"/>
+						<local:NumberSelector x:Name="selectComboSupport" Title="ComboSupport"/>
+						<local:NumberSelector x:Name="selectHeal" Title="Heal"/>
+						<local:NumberSelector x:Name="selectGuard" Title="Guard"/>
+						<local:NumberSelector x:Name="selectNone" Title="None"/>
+					</StackPanel>
+				</Grid>
+			</Grid>
+			<Grid Grid.Column="1" Background="#99000000"/>
+		</Grid>
+		<Grid x:Name="gridAlbum" Background="White" Visibility="Collapsed">
+			<Grid.RowDefinitions>
+				<RowDefinition Height="50"/>
+				<RowDefinition Height="*"/>
+			</Grid.RowDefinitions>
+			<Grid Background="White">
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="50"/>
+					<ColumnDefinition Width="*"/>
+					<ColumnDefinition Width="50"/>
+				</Grid.ColumnDefinitions>
+				<local:ImageButton x:Name="buttonBack" 
+								   Grid.Column="0" HorizontalAlignment="Right" Size="50" 
+								   Source="Resources/back.png"
+								   Response="buttonBack_Response"/>
+				<TextBlock x:Name="textSelectCount" Grid.Column="1"
+						   VerticalAlignment="Center"
+						   FontSize="16"/>
+
+				<local:ImageButton x:Name="buttonOpenFolder" Visibility="Collapsed"
+								   Grid.Column="2" HorizontalAlignment="Right" Size="50"
+								   Source="Resources/more.png" InnerMargin="10"/>
+			</Grid>
+			<ScrollViewer Grid.Row="1">
+				<Grid x:Name="gridContent">
+
+				</Grid>
+			</ScrollViewer>
+		</Grid>
+		<Grid x:Name="gridBlock" Background="#88000000" Visibility="Collapsed">
+			<StackPanel HorizontalAlignment="Stretch"
+						VerticalAlignment="Center">
+				<TextBlock x:Name="textLoading"
+						   Foreground="White"
+						   FontSize="24"
+						   HorizontalAlignment="Center"
+						   Margin="0, 10, 0, 0"
+						   Text="..."/>
+			</StackPanel>
+		</Grid>
+	</Grid>
+</Window>

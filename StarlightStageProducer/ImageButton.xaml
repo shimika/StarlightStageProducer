@@ -1,0 +1,15 @@
+﻿<UserControl x:Class="StarlightStageProducer.ImageButton"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" HorizontalAlignment="Left" VerticalAlignment="Top"
+             d:DesignHeight="50" d:DesignWidth="50">
+    <Grid x:Name="gridMain" Background="Transparent">
+        <Ellipse x:Name="circle" Margin="2" Fill="LightGray" Opacity="0"/>
+        <Image x:Name="image" Margin="12"/>
+        <Button Click="Button_Click" Background="Transparent" 
+				MouseEnter="gridMain_MouseEnter" MouseLeave="gridMain_MouseLeave"
+				PreviewMouseDown="Button_PreviewMouseDown" PreviewMouseUp="Button_PreviewMouseUp"/>
+    </Grid>
+</UserControl>

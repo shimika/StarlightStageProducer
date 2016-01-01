@@ -1,0 +1,38 @@
+﻿<UserControl x:Class="StarlightStageProducer.IdolView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:StarlightStageProducer"
+			 Width="70" Height="70" HorizontalAlignment="Left" VerticalAlignment="Top">
+	<Grid Background="White" MouseEnter="Grid_MouseEnter" MouseLeave="Grid_MouseLeave">
+		<Image x:Name="image" 
+			   Width="64" Height="64"
+			   Source="Resources/sample.jpg" />
+		<Grid x:Name="gridSelection" Width="24" Height="24"
+				 HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="5">
+			<Ellipse x:Name="circle" Fill="{DynamicResource CuteBrush}"/>
+			<Image x:Name="imageCheck" Source="Resources/ok.png" Margin="2" Visibility="Collapsed"/>
+			<TextBlock x:Name="textCount" Text="11" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontWeight="Bold"/>
+		</Grid>
+		<Button Background="Transparent" Click="Button_Click"/>
+		<Grid x:Name="gridModify" Background="#77000000" Visibility="Collapsed">
+			<StackPanel VerticalAlignment="Center">
+				<Button x:Name="buttonUp" Background="Transparent" Margin="2" Click="buttonUp_Click">
+					<Grid Width="24" Height="24"
+					 HorizontalAlignment="Right" VerticalAlignment="Bottom">
+						<Ellipse Fill="{DynamicResource CuteBrush}"/>
+						<Image Source="Resources/bonus.png" Margin="2"/>
+					</Grid>
+				</Button>
+				<Button x:Name="buttonDown" Background="Transparent" Margin="2" Click="buttonDown_Click">
+					<Grid Width="24" Height="24"
+					 HorizontalAlignment="Right" VerticalAlignment="Bottom">
+						<Ellipse Fill="{DynamicResource CoolBrush}"/>
+						<Image Source="Resources/down.png" Margin="2"/>
+					</Grid>
+				</Button>
+			</StackPanel>
+		</Grid>
+	</Grid>
+</UserControl>
