@@ -76,8 +76,9 @@ namespace StarlightStageProducer {
 			return Array.IndexOf(SKillIndex, skill);
 		}
 
-		public static Deck CalculateBest(List<Idol> myIdols, List<Idol> guests, Type musicType) {
-			if (musicType == Type.All && BurstMode != Burst.None) { return null; }
+		public static Deck CalculateBest(List<Idol> myIdols, List<Idol> guests, Burst burstMode, Type musicType) {
+			if (musicType == Type.All && burstMode != Burst.None) { return null; }
+			if (burstMode != Burst.None) { guests = new List<Idol>(new Idol[] { new Idol() }); }
 
 			List<Deck> deckRank = new List<Deck>();
 			foreach (Idol guest in guests) {
@@ -88,10 +89,10 @@ namespace StarlightStageProducer {
 
 					Type[] bonusTypes = new Type[] { guest.Type, leader.Type };
 					CenterSkill[] bonusSkills = new CenterSkill[] { guest.CenterSkill, leader.CenterSkill };
-					Rarity[] rarities = new Rarity[] { Rarity.SSR, leader.Rarity };
+					Rarity[] rarities = new Rarity[] { guest.Rarity, leader.Rarity };
 
-					Idol nGuest = applyBonus(guest, musicType, BurstMode, bonusTypes, bonusSkills, rarities);
-					Idol nLeader = applyBonus(leader, musicType, BurstMode, bonusTypes, bonusSkills, rarities);
+					Idol nGuest = applyBonus(guest, musicType, burstMode, bonusTypes, bonusSkills, rarities);
+					Idol nLeader = applyBonus(leader, musicType, burstMode, bonusTypes, bonusSkills, rarities);
 
 					int[] skillCount = new int[SkillCount.Length];
 					Array.Copy(SkillCount, skillCount, SkillCount.Length);
@@ -104,7 +105,7 @@ namespace StarlightStageProducer {
 								.Where(idol => idol.Id != leader.Id)
 								.Distinct(compare)
 								.Where(idol => idol.Skill == SKillIndex[i])
-								.Select(idol => applyBonus(idol, musicType, BurstMode, bonusTypes, bonusSkills, rarities))
+								.Select(idol => applyBonus(idol, musicType, burstMode, bonusTypes, bonusSkills, rarities))
 								.OrderByDescending(idol => idol.Appeal)
 								.Take(skillCount[i]));
 						}
@@ -124,7 +125,7 @@ namespace StarlightStageProducer {
 			List<Idol> supporters = Idols
 				.Where(i => getIdolLessCount(i.Id, best) > 0)
 				.SelectMany(i => Enumerable.Repeat(i, getIdolLessCount(i.Id, best)))
-				.Select(i => applyBonus(i, musicType, BurstMode, null, null, null, true))
+				.Select(i => applyBonus(i, musicType, burstMode, null, null, null, true))
 				.OrderByDescending(i => i.Appeal)
 				.Take(10)
 				.ToList();
@@ -146,13 +147,13 @@ namespace StarlightStageProducer {
 
 			switch (burst) {
 				case Burst.Vocal:
-					vocal += 50;
+					vocal += 150;
 					break;
 				case Burst.Dance:
-					dance += 50;
+					dance += 150;
 					break;
 				case Burst.Visual:
-					visual += 50;
+					visual += 150;
 					break;
 			}
 
@@ -218,6 +219,7 @@ namespace StarlightStageProducer {
 
 			return nIdol;
 		}
+
 		private static int roundUp(int value, int divider) {
 			return (value + divider - 1) / divider;
 		}

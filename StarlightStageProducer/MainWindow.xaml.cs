@@ -122,7 +122,7 @@ namespace StarlightStageProducer {
 			if (myIdols.Count == 0) { return; }
 
 			foreach (Type musicType in Enum.GetValues(typeof(Type))) {
-				Deck best = Data.CalculateBest(myIdols, guests, musicType);
+				Deck best = Data.CalculateBest(myIdols, guests, Data.BurstMode, musicType);
 
 				switch (musicType) {
 					case Type.All:

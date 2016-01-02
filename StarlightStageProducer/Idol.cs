@@ -21,6 +21,13 @@ namespace StarlightStageProducer {
 			get { return Vocal + Dance + Visual; }
 		}
 
+		public Idol() {
+			this.Id = -1;
+			this.Type = Type.All;
+			this.Rarity = Rarity.N;
+			this.CenterSkill = CenterSkill.None;
+		}
+
 		public Idol(int id, string rarity, int rarityNumber, string type, int vocal, int dance, int visual, string name, string originalName, string centerSkill, string skill) {
 			this.Id = id;
 			this.Rarity = (Rarity)Enum.Parse(typeof(Rarity), rarity);

@@ -44,7 +44,9 @@ namespace StarlightStageProducer {
 				textAppeal.Text = string.Format("{0} + {1} = {2}", deck.MainAppeal, deck.SupportAppeal, deck.Appeal);
 
 				imageLeader.SetIdol(deck.Leader);
-				imageGuest.SetIdol(deck.Guest, false);
+				if (deck.Guest.Id > 0) {
+					imageGuest.SetIdol(deck.Guest, false);
+				}
 
 				for (int i = 0; i < deck.Members.Count; i++) {
 					IdolDeckView idolDeckView = (FindName(string.Format("image{0}", i)) as IdolDeckView);
