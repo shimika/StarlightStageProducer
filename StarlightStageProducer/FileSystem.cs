@@ -21,6 +21,21 @@ namespace StarlightStageProducer {
 			if (!Directory.Exists(TempFolder)) { Directory.CreateDirectory(TempFolder); }
 		}
 
+		private static String getString(JsonObject obj) {
+			try {
+				return obj.GetValue().ToString();
+			}
+			catch {
+				return null;
+			}
+		}
+
+		private static int getInt(JsonObject obj) {
+			string r = getString(obj);
+			if(r == null) { return 0; }
+			return Convert.ToInt32(r);
+		}
+
 		public static List<Idol> GetIdols() {
 			List<Idol> idols = new List<Idol>();
 			if (!File.Exists(DataPath)) { return idols; }
@@ -33,19 +48,20 @@ namespace StarlightStageProducer {
 			}
 
 			foreach (JsonObjectCollection obj in root) {
-				int id = Convert.ToInt32(obj["Id"].GetValue());
-				string rarity = obj["Rarity"].GetValue().ToString();
-				int rarityNumber = Convert.ToInt32(obj["RarityNumber"].GetValue());
-				string type = obj["Type"].GetValue().ToString();
-				int cute = Convert.ToInt32(obj["Vocal"].GetValue());
-				int cool = Convert.ToInt32(obj["Dance"].GetValue());
-				int passion = Convert.ToInt32(obj["Visual"].GetValue());
-				string name = obj["Name"].GetValue().ToString();
-				string originalName = obj["OriginalName"].GetValue().ToString();
-				string centerSkill = obj["CenterSkill"].GetValue().ToString();
-				string skill = obj["Skill"].GetValue().ToString();
+				int id = getInt(obj["Id"]);
+				string rarity = getString(obj["Rarity"]);
+				int rarityNumber = getInt(obj["RarityNumber"]);
+				string type = getString(obj["Type"]);
+				int cute = getInt(obj["Vocal"]);
+				int cool = getInt(obj["Dance"]);
+				int passion = getInt(obj["Visual"]);
+				string name = getString(obj["Name"]);
+				string originalName = getString(obj["OriginalName"]);
+				string centerSkill = getString(obj["CenterSkill"]);
+				string centerSkillType = getString(obj["CenterSkillType"]);
+				string skill = getString(obj["Skill"]);
 
-				idols.Add(new Idol(id, rarity, rarityNumber, type, cute, cool, passion, name, originalName, centerSkill, skill));
+				idols.Add(new Idol(id, rarity, rarityNumber, type, cute, cool, passion, name, originalName, centerSkill, centerSkillType, skill));
 			}
 
 			return idols;
@@ -68,6 +84,7 @@ namespace StarlightStageProducer {
 				obj.Add(new JsonStringValue("Name", idol.Name));
 				obj.Add(new JsonStringValue("OriginalName", idol.OriginalName));
 				obj.Add(new JsonStringValue("CenterSkill", idol.CenterSkill.ToString()));
+				obj.Add(new JsonStringValue("CenterSkillType", idol.CenterSkillType.ToString()));
 				obj.Add(new JsonStringValue("Skill", idol.Skill.ToString()));
 				root.Add(obj);
 			}
@@ -90,8 +107,8 @@ namespace StarlightStageProducer {
 
 			foreach (JsonObjectCollection obj in root) {
 				try {
-					int id = Convert.ToInt32(obj["Id"].GetValue());
-					int count = Convert.ToInt32(obj["Count"].GetValue());
+					int id = getInt(obj["Id"]);
+					int count = getInt(obj["Count"]);
 
 					dict[id] = count;
 				}catch (Exception ex) {

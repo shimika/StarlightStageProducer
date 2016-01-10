@@ -87,12 +87,10 @@ namespace StarlightStageProducer {
 						continue;
 					}
 
-					Type[] bonusTypes = new Type[] { guest.Type, leader.Type };
-					CenterSkill[] bonusSkills = new CenterSkill[] { guest.CenterSkill, leader.CenterSkill };
-					Rarity[] rarities = new Rarity[] { guest.Rarity, leader.Rarity };
+					Idol[] effectIdols = new Idol[] { leader, guest };
 
-					Idol nGuest = applyBonus(guest, musicType, burstMode, bonusTypes, bonusSkills, rarities);
-					Idol nLeader = applyBonus(leader, musicType, burstMode, bonusTypes, bonusSkills, rarities);
+					Idol nGuest = applyBonus(guest, musicType, burstMode, effectIdols);
+					Idol nLeader = applyBonus(leader, musicType, burstMode, effectIdols);
 
 					int[] skillCount = new int[SkillCount.Length];
 					Array.Copy(SkillCount, skillCount, SkillCount.Length);
@@ -105,7 +103,7 @@ namespace StarlightStageProducer {
 								.Where(idol => idol.Id != leader.Id)
 								.Distinct(compare)
 								.Where(idol => idol.Skill == SKillIndex[i])
-								.Select(idol => applyBonus(idol, musicType, burstMode, bonusTypes, bonusSkills, rarities))
+								.Select(idol => applyBonus(idol, musicType, burstMode, effectIdols))
 								.OrderByDescending(idol => idol.Appeal)
 								.Take(skillCount[i]));
 						}
@@ -125,7 +123,7 @@ namespace StarlightStageProducer {
 			List<Idol> supporters = Idols
 				.Where(i => getIdolLessCount(i.Id, best) > 0)
 				.SelectMany(i => Enumerable.Repeat(i, getIdolLessCount(i.Id, best)))
-				.Select(i => applyBonus(i, musicType, burstMode, null, null, null, true))
+				.Select(i => applyBonus(i, musicType, burstMode, null, true))
 				.OrderByDescending(i => i.Appeal)
 				.Take(10)
 				.ToList();
@@ -135,7 +133,7 @@ namespace StarlightStageProducer {
 			return best;
 		}
 
-		private static Idol applyBonus(Idol idol, Type musicType, Burst burst, Type[] bonusTypes, CenterSkill[] centerSkills, Rarity[] raritys, bool isSupporter = false) {
+		private static Idol applyBonus(Idol idol, Type musicType, Burst burst, Idol[] effectIdols, bool isSupporter = false) {
 			int vocal, dance, visual;
 			vocal = dance = visual = 100;
 
@@ -163,26 +161,38 @@ namespace StarlightStageProducer {
 				visual += 30;
 			}
 
-			if (bonusTypes != null) {
-				for (int i = 0; i < 2; i++) {
-					Type type = bonusTypes[i];
-					CenterSkill skill = centerSkills[i];
-
-					int value = 0;
-					switch (raritys[i]) {
-						case Rarity.R:
+			if (effectIdols != null) {
+				foreach(Idol effectIdol in effectIdols) { 
+					int value = 1;
+					switch (effectIdol.CenterSkillType) {
+						case Type.All:
+							value = 8;
+							break;
+						default:
 							value = 10;
-							break;
-						case Rarity.SR:
-							value = 20;
-							break;
-						case Rarity.SSR:
-							value = 30;
 							break;
 					}
 
-					if (idol.Type == type) {
-						switch (skill) {
+					switch (effectIdol.Rarity) {
+						case Rarity.R:
+							break;
+						case Rarity.SR:
+							value *= 2;
+							break;
+						case Rarity.SSR:
+							value *= 3;
+							break;
+						default:
+							value = 0;
+							break;
+					}
+
+					if (effectIdol.Name.IndexOf("미오") >= 0) {
+						Console.WriteLine(effectIdol.Name + " : " + value);
+					}
+
+					if (idol.Type == effectIdol.Type || effectIdol.CenterSkillType == Type.All) {
+						switch (effectIdol.CenterSkill) {
 							case CenterSkill.All:
 								vocal += value;
 								dance += value;
@@ -235,15 +245,143 @@ namespace StarlightStageProducer {
 		}
 
 		public static string GetInfo(Idol idol) {
-			return string.Format("{0}\n{1}\n\n보컬: {2}\n댄스: {3}\n비쥬얼: {4}\n합: {5}\n\n{6}\n{7}",
+			string basic = string.Format("{0}\n{1}\n\n보컬: {2}\n댄스: {3}\n비쥬얼: {4}\n합: {5}\n\n",
 				RarityString[idol.RarityNumber],
 				idol.Name,
 				idol.Vocal,
 				idol.Dance,
 				idol.Visual,
-				idol.Appeal,
-				idol.CenterSkill.ToString(),
-				idol.Skill.ToString());
+				idol.Appeal);
+
+			string target = "";
+			int skillBonus = 0, rarityBonus = 0;
+			switch (idol.CenterSkillType) {
+				case Type.All:
+					skillBonus = 8;
+					target = "모든 아이돌의 ";
+					break;
+				case Type.Cute:
+					skillBonus = 10;
+					target = "큐트 아이돌의 ";
+					break;
+				case Type.Cool:
+					skillBonus = 10;
+					target = "쿨 아이돌의 ";
+					break;
+				case Type.Passion:
+					skillBonus = 10;
+					target = "패션 아이돌의 ";
+					break;
+			}
+
+			switch (idol.Rarity) {
+				case Rarity.R:
+					rarityBonus = 1;
+					break;
+				case Rarity.SR:
+					rarityBonus = 2;
+					break;
+				case Rarity.SSR:
+					rarityBonus = 3;
+					break;
+				case Rarity.N:
+					rarityBonus = 0;
+					break;
+			}
+
+			string centerSkill = "";
+			switch (idol.CenterSkill) {
+				case CenterSkill.All:
+					centerSkill = string.Format("{0} 모든 어필 {1}%", target, skillBonus * rarityBonus);
+					break;
+				case CenterSkill.Vocal:
+					centerSkill = string.Format("{0} 보컬 어필 {1}%", target, skillBonus * rarityBonus * 3);
+					break;
+				case CenterSkill.Dance:
+					centerSkill = string.Format("{0} 댄스 어필 {1}%", target, skillBonus * rarityBonus * 3);
+					break;
+				case CenterSkill.Visual:
+					centerSkill = string.Format("{0} 비쥬얼 어필 {1}%", target, skillBonus * rarityBonus * 3);
+					break;
+				case CenterSkill.None:
+					centerSkill = "기타 센터 스킬";
+					break;
+			}
+
+			string skill = "";
+			switch (idol.Skill) {
+				case Skill.Score:
+					switch (idol.Rarity) {
+						case Rarity.R:
+							skill = "Perfect 스코어 보너스 10%";
+							break;
+
+						case Rarity.SR:
+							skill = "Perfect 스코어 보너스 15%";
+							break;
+
+						case Rarity.SSR:
+							skill = "Perfect/Great 스코어 보너스 17%";
+							break;
+					}
+					break;
+
+				case Skill.Combo:
+					switch (idol.Rarity) {
+						case Rarity.R:
+							skill = "콤보 보너스 8%";
+							break;
+
+						case Rarity.SR:
+							skill = "콤보 보너스 12%";
+							break;
+
+						case Rarity.SSR:
+							skill = "콤보 보너스 12%";
+							break;
+					}
+					break;
+
+				case Skill.PerfectSupport:
+					switch (idol.Rarity) {
+						case Rarity.R:
+							skill = "Great를 Perfect로";
+							break;
+
+						case Rarity.SR:
+							skill = "Great/Nice를 Perfect로";
+							break;
+
+						case Rarity.SSR:
+							skill = "Great/Nice/Bad를 Perfect로";
+							break;
+					}
+					break;
+
+				case Skill.ComboSupport:
+					skill = "Nice 콤보 유지";
+					break;
+
+				case Skill.Guard:
+					skill = "무적";
+					break;
+
+				case Skill.Heal:
+					switch (idol.Rarity) {
+						case Rarity.R:
+							skill = "Perfect로 라이프 2회복";
+							break;
+
+						case Rarity.SR:
+						case Rarity.SSR:
+							skill = "Perfect로 라이프 3회복";
+							break;
+					}
+
+					break;
+			}
+
+			return string.Format("{0}{1}\n{2}", basic, centerSkill, skill);
 		}
 	}
 }

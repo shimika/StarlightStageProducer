@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace StarlightStageProducer {
 	public class Idol {
@@ -15,6 +16,7 @@ namespace StarlightStageProducer {
 		public string Name { get; internal set; }
 		public string OriginalName { get; internal set; }
 		public CenterSkill CenterSkill { get; internal set; }
+		public Type CenterSkillType { get; internal set; }
 		public Skill Skill { get; internal set; }
 
 		public int Appeal {
@@ -26,23 +28,37 @@ namespace StarlightStageProducer {
 			this.Type = Type.All;
 			this.Rarity = Rarity.N;
 			this.CenterSkill = CenterSkill.None;
+			this.CenterSkillType = Type.All;
 		}
 
-		public Idol(int id, string rarity, int rarityNumber, string type, int vocal, int dance, int visual, string name, string originalName, string centerSkill, string skill) {
+		private T parseEnum<T>(string str) where T : struct, IConvertible {
+			if (!typeof(T).IsEnum) {
+				throw new ArgumentException("T must be an enumerated type");
+			}
+			try {
+				return (T)Enum.Parse(typeof(T), str);
+			}
+			catch { }
+			return (T)Enum.GetValues(typeof(T)).GetValue(0);
+		}
+
+		public Idol(int id, string rarity, int rarityNumber, string type, int vocal, int dance, int visual, string name, string originalName, string centerSkill, string centerSkillType, string skill) {
 			this.Id = id;
-			this.Rarity = (Rarity)Enum.Parse(typeof(Rarity), rarity);
+			this.Rarity = parseEnum<Rarity>(rarity);
 			this.RarityNumber = rarityNumber;
-			this.Type = (Type)Enum.Parse(typeof(Type), type);
+			this.Type = parseEnum<Type>(type);
+			//this.Type = (Type)Enum.Parse(typeof(Type), type);
 			this.Vocal = vocal;
 			this.Dance = dance;
 			this.Visual = visual;
 			this.Name = name;
 			this.OriginalName = originalName;
-			this.CenterSkill = (CenterSkill)Enum.Parse(typeof(CenterSkill), centerSkill);
-			this.Skill = (Skill)Enum.Parse(typeof(Skill), skill);
+			this.CenterSkill = parseEnum<CenterSkill>(centerSkill);
+			this.Skill = parseEnum<Skill>(skill);
+			this.CenterSkillType = parseEnum<Type>(centerSkillType);
 		}
 
-		public Idol(int id, Rarity rarity, int rarityNumber, string imageUrl, int infoId, Type type, int vocal, int dance, int visual, string name, string originalName, CenterSkill centerSkill, Skill skill) {
+		public Idol(int id, Rarity rarity, int rarityNumber, string imageUrl, int infoId, Type type, int vocal, int dance, int visual, string name, string originalName, CenterSkill centerSkill, Type centerSkillType, Skill skill) {
 			this.Id = id;
 			this.Rarity = rarity;
 			this.RarityNumber = rarityNumber;
@@ -55,6 +71,7 @@ namespace StarlightStageProducer {
 			this.Name = name;
 			this.OriginalName = originalName;
 			this.CenterSkill = centerSkill;
+			this.CenterSkillType = centerSkillType;
 			this.Skill = skill;
 		}
 
@@ -124,6 +141,19 @@ namespace StarlightStageProducer {
 				string[] split = skill.Split(':');
 				Console.WriteLine("{0} {1}", split[0], split[1]);
 
+				string infoScore = Network.GET(string.Format("{0}={1}", Network.InfoEndPoint, infoId));
+
+				this.CenterSkillType = Type.All;
+
+				if (infoScore.IndexOf("큐트 아이돌") >= 0) {
+					this.CenterSkillType = Type.Cute;
+				} else if(infoScore.IndexOf("쿨 아이돌") >= 0) {
+					this.CenterSkillType = Type.Cool;
+				}
+				else if(infoScore.IndexOf("패션 아이돌") >= 0) {
+					this.CenterSkillType = Type.Passion;
+				}
+
 				if (split[0] == "C") {
 					switch (split[1]) {
 						case "보컬어필":
@@ -145,7 +175,6 @@ namespace StarlightStageProducer {
 				} else if (split[0] == "S") {
 					switch (split[1]) {
 						case "스코어":
-							string infoScore = Network.GET(string.Format("{0}={1}", Network.InfoEndPoint, infoId));
 							if (infoScore == null) {
 								this.Skill = Skill.None;
 							}
@@ -173,7 +202,10 @@ namespace StarlightStageProducer {
 								this.Skill = Skill.None;
 							}
 							else {
-								if (infoJudge.IndexOf("GREAT/NICE") >= 0) { 
+								if (infoJudge.IndexOf("GREAT를") >= 0) {
+									this.Skill = Skill.PerfectSupport;
+								}
+								else if (infoJudge.IndexOf("GREAT/NICE") >= 0) { 
 									this.Skill = Skill.PerfectSupport;
 								}
 								else if (infoJudge.IndexOf("NICE여도") >= 0) {
@@ -199,7 +231,7 @@ namespace StarlightStageProducer {
 		}
 
 		public Idol Clone() {
-			return new Idol(Id, Rarity, RarityNumber, ImageUrl, InfoId, Type, Vocal, Dance, Visual, Name, OriginalName, CenterSkill, Skill);
+			return new Idol(Id, Rarity, RarityNumber, ImageUrl, InfoId, Type, Vocal, Dance, Visual, Name, OriginalName, CenterSkill, CenterSkillType, Skill);
 		}
 	}
 
@@ -214,9 +246,12 @@ namespace StarlightStageProducer {
 			return obj.Id.GetHashCode();
 		}
 	}
-
+	
 	public enum Rarity { N, R, SR, SSR }
-	public enum Type { Cute, Cool, Passion, All };
-	public enum CenterSkill { Vocal, Dance, Visual, All, None };
-	public enum Skill { Score, Combo, PerfectSupport, ComboSupport, Heal, Guard, None };
+	
+	public enum Type { All, Cute, Cool, Passion };
+	
+	public enum CenterSkill { None, Vocal, Dance, Visual, All };
+	
+	public enum Skill { None, Score, Combo, PerfectSupport, ComboSupport, Heal, Guard };
 }
