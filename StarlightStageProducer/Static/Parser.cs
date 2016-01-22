@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using System.Windows;
 using HtmlAgilityPack;
 
 namespace StarlightStageProducer {
@@ -21,7 +23,7 @@ namespace StarlightStageProducer {
 
 			HtmlNodeCollection nodeList = doc.DocumentNode.SelectNodes("//div[@class='List']//tbody//tr");
 
-			for(int i = 0; i < nodeList.Count; i++) {
+			for (int i = 0; i < nodeList.Count; i++) {
 				HtmlNode node = nodeList[i];
 
 				string rarity = node.SelectSingleNode(".//td[@class='field1']").InnerText;
@@ -38,9 +40,9 @@ namespace StarlightStageProducer {
 
 				idols.Add(new Idol(id, rarity, imageUrl, infoId, type, vocal, dance, visual, names, skills));
 
-				Console.WriteLine(string.Format("{0} {1} {2} {3} {4}", rarity, type, vocal, dance, visual));
-				Console.WriteLine(string.Format("{0}\n{1}\n{2}  {3} {4}", skills[0], skills[1], names[0], id, infoId));
-				Console.WriteLine();
+				//Console.WriteLine(string.Format("{0} {1} {2} {3} {4}", rarity, type, vocal, dance, visual));
+				//Console.WriteLine(string.Format("{0}\n{1}\n{2}  {3} {4}", skills[0], skills[1], names[0], id, infoId));
+				//Console.WriteLine();
 
 				network.SendLoadingStatus(string.Format("Database downloading... {0} / {1}", i + 1, nodeList.Count));
 			}

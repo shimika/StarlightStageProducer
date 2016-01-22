@@ -1,0 +1,156 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace StarlightStageProducer.Static {
+	class Info {
+		public static string GetCheckCount() {
+			return string.Format("Selected: {0} / {1}", Data.CountMap.Count(i => i.Value > 0), Data.Idols.Count);
+		}
+
+		public static string GetInfo(int id) {
+			return GetInfo(Data.Idols.Where(i => i.Id == id).First());
+		}
+
+		public static string GetInfo(Idol idol) {
+			string basic = string.Format("{0}\n{1}\n\n보컬: {2}\n댄스: {3}\n비쥬얼: {4}\n합: {5}\n\n",
+				Data.RarityString[idol.RarityNumber],
+				idol.Name,
+				idol.Vocal,
+				idol.Dance,
+				idol.Visual,
+				idol.Appeal);
+
+			string target = "";
+			int skillBonus = 0, rarityBonus = 0;
+			switch (idol.CenterSkillType) {
+				case Type.All:
+					skillBonus = 8;
+					target = "모든 아이돌의 ";
+					break;
+				case Type.Cute:
+					skillBonus = 10;
+					target = "큐트 아이돌의 ";
+					break;
+				case Type.Cool:
+					skillBonus = 10;
+					target = "쿨 아이돌의 ";
+					break;
+				case Type.Passion:
+					skillBonus = 10;
+					target = "패션 아이돌의 ";
+					break;
+			}
+
+			switch (idol.Rarity) {
+				case Rarity.R:
+					rarityBonus = 1;
+					break;
+				case Rarity.SR:
+					rarityBonus = 2;
+					break;
+				case Rarity.SSR:
+					rarityBonus = 3;
+					break;
+				case Rarity.N:
+					rarityBonus = 0;
+					break;
+			}
+
+			string centerSkill = "";
+			switch (idol.CenterSkill) {
+				case CenterSkill.All:
+					centerSkill = string.Format("{0} 모든 어필 {1}%", target, skillBonus * rarityBonus);
+					break;
+				case CenterSkill.Vocal:
+					centerSkill = string.Format("{0} 보컬 어필 {1}%", target, skillBonus * rarityBonus * 3);
+					break;
+				case CenterSkill.Dance:
+					centerSkill = string.Format("{0} 댄스 어필 {1}%", target, skillBonus * rarityBonus * 3);
+					break;
+				case CenterSkill.Visual:
+					centerSkill = string.Format("{0} 비쥬얼 어필 {1}%", target, skillBonus * rarityBonus * 3);
+					break;
+				case CenterSkill.None:
+					centerSkill = "기타 센터 스킬";
+					break;
+			}
+
+			string skill = "";
+			switch (idol.Skill) {
+				case Skill.Score:
+					switch (idol.Rarity) {
+						case Rarity.R:
+							skill = "Perfect 스코어 보너스 10%";
+							break;
+
+						case Rarity.SR:
+							skill = "Perfect 스코어 보너스 15%";
+							break;
+
+						case Rarity.SSR:
+							skill = "Perfect/Great 스코어 보너스 17%";
+							break;
+					}
+					break;
+
+				case Skill.Combo:
+					switch (idol.Rarity) {
+						case Rarity.R:
+							skill = "콤보 보너스 8%";
+							break;
+
+						case Rarity.SR:
+							skill = "콤보 보너스 12%";
+							break;
+
+						case Rarity.SSR:
+							skill = "콤보 보너스 12%";
+							break;
+					}
+					break;
+
+				case Skill.PerfectSupport:
+					switch (idol.Rarity) {
+						case Rarity.R:
+							skill = "Great를 Perfect로";
+							break;
+
+						case Rarity.SR:
+							skill = "Great/Nice를 Perfect로";
+							break;
+
+						case Rarity.SSR:
+							skill = "Great/Nice/Bad를 Perfect로";
+							break;
+					}
+					break;
+
+				case Skill.ComboSupport:
+					skill = "Nice 콤보 유지";
+					break;
+
+				case Skill.Guard:
+					skill = "무적";
+					break;
+
+				case Skill.Heal:
+					switch (idol.Rarity) {
+						case Rarity.R:
+							skill = "Perfect로 라이프 2회복";
+							break;
+
+						case Rarity.SR:
+						case Rarity.SSR:
+							skill = "Perfect로 라이프 3회복";
+							break;
+					}
+
+					break;
+			}
+
+			return string.Format("{0}{1}\n{2}", basic, centerSkill, skill);
+		}
+	}
+}

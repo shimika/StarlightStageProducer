@@ -7,6 +7,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace StarlightStageProducer {
 	class Network {
@@ -112,13 +113,15 @@ namespace StarlightStageProducer {
 				httpWebRequest.Proxy = null;
 
 				HttpWebResponse httpWebResponse = (HttpWebResponse)httpWebRequest.GetResponse();
-				StreamReader streamReader = new StreamReader(httpWebResponse.GetResponseStream(), Encoding.GetEncoding("EUC-KR"));
+				StreamReader streamReader = new StreamReader(httpWebResponse.GetResponseStream(), Encoding.GetEncoding("UTF-8"));
 
 				return streamReader.ReadToEnd();
 			}
 			catch (Exception ex) {
-				//MessageBox.Show(ex.Message);
+				MessageBox.Show(ex.Message);
+				Console.WriteLine(ex.Message);
 			}
+
 			return null;
 		}
 	}

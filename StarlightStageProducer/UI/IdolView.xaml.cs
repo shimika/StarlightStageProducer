@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using StarlightStageProducer.Static;
 
 namespace StarlightStageProducer {
 	/// <summary>
@@ -32,8 +33,12 @@ namespace StarlightStageProducer {
 			try { image.Source = new BitmapImage(new Uri(path)); }
 			catch { }
 
+			if(idol.Type == Type.All) {
+				MessageBox.Show(idol.Name);
+			}
+
 			circle.Fill = FindResource(idol.Type + "Brush") as SolidColorBrush;
-			ToolTip = Data.GetInfo(idol.Id);
+			ToolTip = Info.GetInfo(idol.Id);
 		}
 
 		public void setSelection(int count) {

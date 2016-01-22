@@ -8,9 +8,11 @@
 		<Color x:Key="CuteColor">#fb0071</Color>
 		<Color x:Key="CoolColor">#0066fa</Color>
 		<Color x:Key="PassionColor">#ffaa00</Color>
+		<Color x:Key="AllColor">#000000</Color>
 		<SolidColorBrush x:Key="CuteBrush" Color="{DynamicResource CuteColor}"/>
 		<SolidColorBrush x:Key="CoolBrush" Color="{DynamicResource CoolColor}"/>
 		<SolidColorBrush x:Key="PassionBrush" Color="{DynamicResource PassionColor}"/>
+		<SolidColorBrush x:Key="AllBrush" Color="{DynamicResource AllColor}"/>
 
 		<SolidColorBrush x:Key="ScoreBrush" Color="#ff5641"/>
 		<SolidColorBrush x:Key="ComboBrush" Color="#ffb500"/>

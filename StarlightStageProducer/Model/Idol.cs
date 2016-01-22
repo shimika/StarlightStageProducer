@@ -135,11 +135,11 @@ namespace StarlightStageProducer {
 			this.Name = names[0];
 			if (names.Length > 1) { this.OriginalName = names[1]; }
 
-			Console.WriteLine("{0}", skills.Length);
+			//Console.WriteLine("{0}", skills.Length);
 
 			foreach (string skill in skills) {
 				string[] split = skill.Split(':');
-				Console.WriteLine("{0} {1}", split[0], split[1]);
+				//Console.WriteLine("{0} {1}", split[0], split[1]);
 
 				string infoScore = Network.GET(string.Format("{0}={1}", Network.InfoEndPoint, infoId));
 

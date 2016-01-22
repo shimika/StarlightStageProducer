@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 
 namespace StarlightStageProducer {
 	class Data {
+		public static string[] RarityString = new string[] { "", "N", "N+", "R", "R+", "SR", "SR+", "SSR", "SSR+" };
+		public static Skill[] SKillIndex = new Skill[] { Skill.Score, Skill.Combo, Skill.PerfectSupport, Skill.ComboSupport, Skill.Heal, Skill.Guard, Skill.None };
+		public enum Burst { Vocal, Dance, Visual, None };
+
 		private static List<Idol> idols = new List<Idol>();
 		public static List<Idol> Idols {
 			get { return idols; }
@@ -18,14 +22,19 @@ namespace StarlightStageProducer {
 			}
 		}
 
+		public static List<Idol> GetMyIdols() {
+			return Idols
+				.Where(i => CountMap.ContainsKey(i.Id))
+				.SelectMany(i => Enumerable.Repeat(i, CountMap[i.Id])).ToList();
+		}
+
+		public static List<Idol> GetSSR() {
+			return Idols.Where(i => i.RarityNumber == 8).ToList();
+		}
+
 		public static int[] SkillCount = new int[] { 3, 2, 0, 0, 0, 0, 0 };
-		public static Skill[] SKillIndex = new Skill[] { Skill.Score, Skill.Combo, Skill.PerfectSupport, Skill.ComboSupport, Skill.Heal, Skill.Guard, Skill.None };
-
 		public static Dictionary<int, int> CountMap = new Dictionary<int, int>();
-
 		private static IdolCompare compare = new IdolCompare();
-
-		public enum Burst { Vocal, Dance, Visual, None };
 		public static Burst BurstMode = Burst.None;
 
 		public static void SetBurstMode(int index) {
@@ -56,20 +65,6 @@ namespace StarlightStageProducer {
 				return CountMap[id];
 			}
 			return 0;
-		}
-
-		public static string GetCheckCount() {
-			return string.Format("Selected: {0} / {1}", CountMap.Count(i => i.Value > 0), Idols.Count);
-		}
-
-		public static List<Idol> GetMyIdols() {
-			return Idols
-				.Where(i => CountMap.ContainsKey(i.Id))
-				.SelectMany(i => Enumerable.Repeat(i, CountMap[i.Id])).ToList();
-		}
-
-		public static List<Idol> GetSSR() {
-			return Idols.Where(i => i.RarityNumber == 8).ToList();
 		}
 
 		private static int getSkillIndex(Skill skill) {
@@ -162,7 +157,7 @@ namespace StarlightStageProducer {
 			}
 
 			if (effectIdols != null) {
-				foreach(Idol effectIdol in effectIdols) { 
+				foreach (Idol effectIdol in effectIdols) {
 					int value = 1;
 					switch (effectIdol.CenterSkillType) {
 						case Type.All:
@@ -185,10 +180,6 @@ namespace StarlightStageProducer {
 						default:
 							value = 0;
 							break;
-					}
-
-					if (effectIdol.Name.IndexOf("미오") >= 0) {
-						Console.WriteLine(effectIdol.Name + " : " + value);
 					}
 
 					if (idol.Type == effectIdol.Type || effectIdol.CenterSkillType == Type.All) {
@@ -237,151 +228,6 @@ namespace StarlightStageProducer {
 		private static int getIdolLessCount(int id, Deck deck) {
 			int count = deck.Leader.Id == id || deck.MemberIds.Contains(id) ? 1 : 0;
 			return CountMap[id] - count;
-		}
-
-		private static string[] RarityString = new string[] { "", "N", "N+", "R", "R+", "SR", "SR+", "SSR", "SSR+" };
-		public static string GetInfo(int id) {
-			return GetInfo(Idols.Where(i => i.Id == id).First());
-		}
-
-		public static string GetInfo(Idol idol) {
-			string basic = string.Format("{0}\n{1}\n\n보컬: {2}\n댄스: {3}\n비쥬얼: {4}\n합: {5}\n\n",
-				RarityString[idol.RarityNumber],
-				idol.Name,
-				idol.Vocal,
-				idol.Dance,
-				idol.Visual,
-				idol.Appeal);
-
-			string target = "";
-			int skillBonus = 0, rarityBonus = 0;
-			switch (idol.CenterSkillType) {
-				case Type.All:
-					skillBonus = 8;
-					target = "모든 아이돌의 ";
-					break;
-				case Type.Cute:
-					skillBonus = 10;
-					target = "큐트 아이돌의 ";
-					break;
-				case Type.Cool:
-					skillBonus = 10;
-					target = "쿨 아이돌의 ";
-					break;
-				case Type.Passion:
-					skillBonus = 10;
-					target = "패션 아이돌의 ";
-					break;
-			}
-
-			switch (idol.Rarity) {
-				case Rarity.R:
-					rarityBonus = 1;
-					break;
-				case Rarity.SR:
-					rarityBonus = 2;
-					break;
-				case Rarity.SSR:
-					rarityBonus = 3;
-					break;
-				case Rarity.N:
-					rarityBonus = 0;
-					break;
-			}
-
-			string centerSkill = "";
-			switch (idol.CenterSkill) {
-				case CenterSkill.All:
-					centerSkill = string.Format("{0} 모든 어필 {1}%", target, skillBonus * rarityBonus);
-					break;
-				case CenterSkill.Vocal:
-					centerSkill = string.Format("{0} 보컬 어필 {1}%", target, skillBonus * rarityBonus * 3);
-					break;
-				case CenterSkill.Dance:
-					centerSkill = string.Format("{0} 댄스 어필 {1}%", target, skillBonus * rarityBonus * 3);
-					break;
-				case CenterSkill.Visual:
-					centerSkill = string.Format("{0} 비쥬얼 어필 {1}%", target, skillBonus * rarityBonus * 3);
-					break;
-				case CenterSkill.None:
-					centerSkill = "기타 센터 스킬";
-					break;
-			}
-
-			string skill = "";
-			switch (idol.Skill) {
-				case Skill.Score:
-					switch (idol.Rarity) {
-						case Rarity.R:
-							skill = "Perfect 스코어 보너스 10%";
-							break;
-
-						case Rarity.SR:
-							skill = "Perfect 스코어 보너스 15%";
-							break;
-
-						case Rarity.SSR:
-							skill = "Perfect/Great 스코어 보너스 17%";
-							break;
-					}
-					break;
-
-				case Skill.Combo:
-					switch (idol.Rarity) {
-						case Rarity.R:
-							skill = "콤보 보너스 8%";
-							break;
-
-						case Rarity.SR:
-							skill = "콤보 보너스 12%";
-							break;
-
-						case Rarity.SSR:
-							skill = "콤보 보너스 12%";
-							break;
-					}
-					break;
-
-				case Skill.PerfectSupport:
-					switch (idol.Rarity) {
-						case Rarity.R:
-							skill = "Great를 Perfect로";
-							break;
-
-						case Rarity.SR:
-							skill = "Great/Nice를 Perfect로";
-							break;
-
-						case Rarity.SSR:
-							skill = "Great/Nice/Bad를 Perfect로";
-							break;
-					}
-					break;
-
-				case Skill.ComboSupport:
-					skill = "Nice 콤보 유지";
-					break;
-
-				case Skill.Guard:
-					skill = "무적";
-					break;
-
-				case Skill.Heal:
-					switch (idol.Rarity) {
-						case Rarity.R:
-							skill = "Perfect로 라이프 2회복";
-							break;
-
-						case Rarity.SR:
-						case Rarity.SSR:
-							skill = "Perfect로 라이프 3회복";
-							break;
-					}
-
-					break;
-			}
-
-			return string.Format("{0}{1}\n{2}", basic, centerSkill, skill);
 		}
 	}
 }

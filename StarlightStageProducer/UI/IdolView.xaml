@@ -8,11 +8,11 @@
 	<Grid Background="White" MouseEnter="Grid_MouseEnter" MouseLeave="Grid_MouseLeave">
 		<Image x:Name="image" 
 			   Width="64" Height="64"
-			   Source="Resources/sample.jpg" />
+			   Source="/Resources/sample.jpg" />
 		<Grid x:Name="gridSelection" Width="24" Height="24"
 				 HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="5">
 			<Ellipse x:Name="circle" Fill="{DynamicResource CuteBrush}"/>
-			<Image x:Name="imageCheck" Source="Resources/ok.png" Margin="2" Visibility="Collapsed"/>
+			<Image x:Name="imageCheck" Source="/Resources/ok.png" Margin="2" Visibility="Collapsed"/>
 			<TextBlock x:Name="textCount" Text="11" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontWeight="Bold"/>
 		</Grid>
 		<Button Background="Transparent" Click="Button_Click"/>

@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>StarlightStageProducer</RootNamespace>
     <AssemblyName>StarlightStageProducer</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
@@ -25,6 +25,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -34,10 +35,11 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="HtmlAgilityPack, Version=1.4.9.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
-      <HintPath>..\packages\HtmlAgilityPack.1.4.9\lib\Net40\HtmlAgilityPack.dll</HintPath>
+      <HintPath>..\packages\HtmlAgilityPack.1.4.9\lib\Net45\HtmlAgilityPack.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="PresentationFramework.Aero" />
@@ -62,19 +64,19 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Page Include="DeckContainer.xaml">
+    <Page Include="UI\DeckContainer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="IdolDeckView.xaml">
+    <Page Include="UI\IdolDeckView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="IdolView.xaml">
+    <Page Include="UI\IdolView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="ImageButton.xaml">
+    <Page Include="UI\ImageButton.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -86,22 +88,23 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="Data.cs" />
-    <Compile Include="Deck.cs" />
-    <Compile Include="DeckContainer.xaml.cs">
+    <Compile Include="Static\Info.cs" />
+    <Compile Include="Static\Data.cs" />
+    <Compile Include="Model\Deck.cs" />
+    <Compile Include="UI\DeckContainer.xaml.cs">
       <DependentUpon>DeckContainer.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Idol.cs" />
-    <Compile Include="IdolDeckView.xaml.cs">
+    <Compile Include="Model\Idol.cs" />
+    <Compile Include="UI\IdolDeckView.xaml.cs">
       <DependentUpon>IdolDeckView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="IdolView.xaml.cs">
+    <Compile Include="UI\IdolView.xaml.cs">
       <DependentUpon>IdolView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="ImageButton.xaml.cs">
+    <Compile Include="UI\ImageButton.xaml.cs">
       <DependentUpon>ImageButton.xaml</DependentUpon>
     </Compile>
-    <Compile Include="FileSystem.cs" />
+    <Compile Include="Static\FileSystem.cs" />
     <Compile Include="JsonUtility\JsonArrayCollection.cs" />
     <Compile Include="JsonUtility\JsonBooleanValue.cs" />
     <Compile Include="JsonUtility\JsonCollection.cs" />
@@ -115,17 +118,17 @@
       <DependentUpon>MainWindow.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Page Include="NumberSelector.xaml">
+    <Page Include="UI\NumberSelector.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Network.cs" />
-    <Compile Include="NumberSelector.xaml.cs">
+    <Compile Include="Static\Network.cs" />
+    <Compile Include="UI\NumberSelector.xaml.cs">
       <DependentUpon>NumberSelector.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Parser.cs" />
+    <Compile Include="Static\Parser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>

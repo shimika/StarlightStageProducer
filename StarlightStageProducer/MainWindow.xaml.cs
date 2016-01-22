@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using StarlightStageProducer.Static;
 
 namespace StarlightStageProducer {
 	/// <summary>
@@ -25,7 +26,7 @@ namespace StarlightStageProducer {
 			network = new Network();
 			network.Completed += Network_Completed;
 			network.Loading += Network_Loading;
-
+			
 			refresh();
 
 			comboBurst.SelectionChanged += ComboBurst_SelectionChanged;
@@ -53,7 +54,7 @@ namespace StarlightStageProducer {
 				gridContent.Children.Add(view);
 				DictView.Add(idol.Id, view);
 			}
-			
+
 			refreshCount();
 		}
 
@@ -67,7 +68,7 @@ namespace StarlightStageProducer {
 		}
 
 		private void refreshCount() {
-			textSelectCount.Text = Data.GetCheckCount();
+			textSelectCount.Text = Info.GetCheckCount();
 		}
 		private void Network_Loading(object sender, LoadingEventArgs e) {
 			Dispatcher.BeginInvoke(new Action(() => {

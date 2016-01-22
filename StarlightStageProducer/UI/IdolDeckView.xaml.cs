@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using StarlightStageProducer.Static;
 
 namespace StarlightStageProducer {
 	/// <summary>
@@ -28,7 +29,7 @@ namespace StarlightStageProducer {
 
 		public void SetIdol(Idol idol, bool showSkill = true) {
 			gridContent.Visibility = Visibility.Visible;
-			ToolTip = Data.GetInfo(idol.Id);
+			ToolTip = Info.GetInfo(idol.Id);
 			//ToolTip = Data.GetInfo(idol);
 
 			try { image.Source = new BitmapImage(new Uri(FileSystem.GetImagePath(idol.Id))); }

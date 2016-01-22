@@ -55,7 +55,7 @@ namespace StarlightStageProducer {
 
 				textAppeal.ToolTip = string.Format("서포터 목록\n\n{0}", string.Join("\n", deck.Supporters.Select(i => i.Name)));
 			} catch(Exception ex) {
-				MessageBox.Show(ex.Message);
+				//MessageBox.Show(ex.Message);
 			}
 		}
 	}
