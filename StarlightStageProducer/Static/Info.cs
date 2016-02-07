@@ -10,7 +10,7 @@ namespace StarlightStageProducer.Static {
 		}
 
 		public static string GetInfo(int id) {
-			return GetInfo(Data.Idols.Where(i => i.Id == id).First());
+			return GetInfo(Data.GetIdol(id));
 		}
 
 		public static string GetInfo(Idol idol) {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Text.RegularExpressions;
 
 namespace StarlightStageProducer {
 	public class Idol {
@@ -13,11 +14,20 @@ namespace StarlightStageProducer {
 		public int Vocal { get; set; }
 		public int Dance { get; set; }
 		public int Visual { get; set; }
-		public string Name { get; internal set; }
 		public string OriginalName { get; internal set; }
 		public CenterSkill CenterSkill { get; internal set; }
 		public Type CenterSkillType { get; internal set; }
 		public Skill Skill { get; internal set; }
+
+		public string ParsedName { get; internal set; }
+		private string name;
+		public string Name {
+			get { return name; }
+			internal set {
+				name = value;
+				ParsedName = Parser.DivideKorean(name);
+			}
+		}
 
 		public int Appeal {
 			get { return Vocal + Dance + Visual; }
@@ -182,7 +192,7 @@ namespace StarlightStageProducer {
 								if (infoScore.IndexOf("PERFECT 스코어") >= 0 || infoScore.IndexOf("PERFECT/GREAT 스코어") >= 0) {
 									this.Skill = Skill.Score;
 								}
-								else if (infoScore.IndexOf("COMBO 보너스") >= 0) {
+								else if (infoScore.IndexOf("COMBO 보너스") >= 0 || infoScore.IndexOf("COMBOボーナス") >= 0) {
 									this.Skill = Skill.Combo;
 								}
 								else {
@@ -229,29 +239,5 @@ namespace StarlightStageProducer {
 				}
 			}
 		}
-
-		public Idol Clone() {
-			return new Idol(Id, Rarity, RarityNumber, ImageUrl, InfoId, Type, Vocal, Dance, Visual, Name, OriginalName, CenterSkill, CenterSkillType, Skill);
-		}
 	}
-
-	class IdolCompare : IEqualityComparer<Idol> {
-		public bool Equals(Idol x, Idol y) {
-			if (x == null && y == null) { return true; }
-			if (x == null || y == null) { return false; }
-			return x.Id == y.Id;
-		}
-
-		public int GetHashCode(Idol obj) {
-			return obj.Id.GetHashCode();
-		}
-	}
-	
-	public enum Rarity { N, R, SR, SSR }
-	
-	public enum Type { All, Cute, Cool, Passion };
-	
-	public enum CenterSkill { None, Vocal, Dance, Visual, All };
-	
-	public enum Skill { None, Score, Combo, PerfectSupport, ComboSupport, Heal, Guard };
 }

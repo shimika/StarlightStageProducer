@@ -43,17 +43,18 @@ namespace StarlightStageProducer {
 				reset();
 				textAppeal.Text = string.Format("{0} + {1} = {2}", deck.MainAppeal, deck.SupportAppeal, deck.Appeal);
 
-				imageLeader.SetIdol(deck.Leader);
+				imageLeader.SetIdol(deck.Leader.Id);
 				if (deck.Guest.Id > 0) {
-					imageGuest.SetIdol(deck.Guest, false);
+					imageGuest.SetIdol(deck.Guest.Id, false);
 				}
 
 				for (int i = 0; i < deck.Members.Count; i++) {
 					IdolDeckView idolDeckView = (FindName(string.Format("image{0}", i)) as IdolDeckView);
-					idolDeckView.SetIdol(deck.Members[i]);
+					idolDeckView.SetIdol(deck.Members[i].Id);
 				}
 
-				textAppeal.ToolTip = string.Format("서포터 목록\n\n{0}", string.Join("\n", deck.Supporters.Select(i => i.Name)));
+				textAppeal.ToolTip = string.Format("서포터 목록\n\n{0}", 
+					string.Join("\n", deck.Supporters.Select(i => Data.GetIdol(i.Id).Name)));
 			} catch(Exception ex) {
 				//MessageBox.Show(ex.Message);
 			}

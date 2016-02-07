@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media.Animation;
 using StarlightStageProducer.Static;
 
 namespace StarlightStageProducer {
@@ -26,21 +28,28 @@ namespace StarlightStageProducer {
 			network = new Network();
 			network.Completed += Network_Completed;
 			network.Loading += Network_Loading;
-			
-			refresh();
 
-			comboBurst.SelectionChanged += ComboBurst_SelectionChanged;
+			checkCute.Checked += CheckBox_ValueChanged;
+			checkCute.Unchecked += CheckBox_ValueChanged;
+			checkCool.Checked += CheckBox_ValueChanged;
+			checkCool.Unchecked += CheckBox_ValueChanged;
+			checkPassion.Checked += CheckBox_ValueChanged;
+			checkPassion.Unchecked += CheckBox_ValueChanged;
+			
+			refresh("");
 			calculate();
 		}
-		
+
 		private void ComboBurst_SelectionChanged(object sender, SelectionChangedEventArgs e) {
-			Data.SetBurstMode(comboBurst.SelectedIndex);
-			calculate();
+			if (this.IsLoaded) {
+				Data.SetBurstMode(comboBurst.SelectedIndex);
+				calculate();
+			}
 		}
 
 		Dictionary<int, IdolView> DictView = new Dictionary<int, IdolView>();
 
-		private void refresh() {
+		private void refresh(string text) {
 			gridContent.Children.Clear();
 			DictView.Clear();
 
@@ -56,6 +65,56 @@ namespace StarlightStageProducer {
 			}
 
 			refreshCount();
+			refreshFilter(text);
+		}
+
+		private void refreshFilter(string text) {
+			bool cute = checkCute.IsChecked.Value;
+			bool cool = checkCool.IsChecked.Value;
+			bool passion = checkPassion.IsChecked.Value;
+
+			string filter = Parser.DivideKorean(text);
+
+			int count = 0;
+			for (int i = 0; i < gridContent.Children.Count; i++) {
+				IdolView view = (IdolView)gridContent.Children[i];
+				bool isShow = false;
+
+				switch (view.getIdolType()) {
+					case Type.Cute:
+						isShow = view.getVisibility(cute, filter);
+						break;
+
+					case Type.Cool:
+						isShow = view.getVisibility(cool, filter);
+						break;
+
+					case Type.Passion:
+						isShow = view.getVisibility(passion, filter);
+						break;
+				}
+
+				if (!isShow) {
+					view.Margin = new Thickness(0, 0, 0, 0);
+					view.Visibility = Visibility.Hidden;
+				}
+				else {
+					view.Visibility = Visibility.Visible;
+					view.Margin = new Thickness(70 * (count % 8), 70 * (count / 8), 0, 0);
+					count++;
+				}
+			}
+		}
+
+		private void CheckBox_ValueChanged(object sender, RoutedEventArgs e) {
+			if (this.IsLoaded) {
+				refreshFilter(textboxFilter.Text);
+			}
+		}
+		private void textboxFilter_TextChanged(object sender, TextChangedEventArgs e) {
+			if (this.IsLoaded) {
+				refreshFilter(textboxFilter.Text);
+			}
 		}
 
 		private void CheckChanged(object sender, CheckEventArgs e) {
@@ -76,9 +135,11 @@ namespace StarlightStageProducer {
 			}));
 		}
 		private void buttonDownload_Response(object sender, CustomButtonEventArgs e) {
+			gridBlock.Opacity = 1;
 			gridBlock.Visibility = Visibility.Visible;
 			network.Download();
 		}
+
 		private void Network_Completed(object sender, DataEventArgs e) {
 			gridBlock.Visibility = Visibility.Collapsed;
 
@@ -87,7 +148,7 @@ namespace StarlightStageProducer {
 			Data.Idols = e.Idols;
 			FileSystem.SaveDatabase(e.Idols);
 
-			refresh();
+			refresh(textboxFilter.Text);
 			calculate();
 		}
 		private void buttonAlbum_Click(object sender, CustomButtonEventArgs e) {
@@ -112,31 +173,66 @@ namespace StarlightStageProducer {
 		}
 
 		private void calculate() {
+			BackgroundWorker bw = new BackgroundWorker();
+			bw.DoWork += Bw_DoWork;
+			bw.RunWorkerCompleted += Bw_RunWorkerCompleted;
+
+			Storyboard sb = new Storyboard();
+			sb.Children.Add(Animation.GetDoubleAnimation(0, gridBlock, 0, 0));
+			sb.Children.Add(Animation.GetDoubleAnimation(1, gridBlock, 200, 500));
+			sb.Begin(this);
+
+			gridBlock.Visibility = Visibility.Visible;
+			textLoading.Text = "Calculating...";
+
+			Console.WriteLine((DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalMilliseconds);
+			Data.CacheList.Clear();
+
 			deckAll.reset();
 			deckCute.reset();
 			deckCool.reset();
 			deckPassion.reset();
 
-			List<Idol> myIdols = Data.GetMyIdols();
-			List<Idol> guests = Data.GetSSR();
+			bw.RunWorkerAsync();
+		}
 
-			if (myIdols.Count == 0) { return; }
+		private void Bw_DoWork(object sender, DoWorkEventArgs e) {
+			Dictionary<Type, Deck> decks = new Dictionary<Type, Deck>();
+
+			if (Data.Idols.Count == 0) {
+				e.Cancel = true;
+				return;
+			}
 
 			foreach (Type musicType in Enum.GetValues(typeof(Type))) {
-				Deck best = Data.CalculateBest(myIdols, guests, Data.BurstMode, musicType);
+				Deck best = Data.CalculateBest(Data.BurstMode, musicType);
+				decks.Add(musicType, best);
+			}
 
-				switch (musicType) {
+			e.Result = decks;
+
+			Console.WriteLine((DateTime.UtcNow.Subtract(new DateTime(1970, 1, 1))).TotalMilliseconds);
+		}
+
+		private void Bw_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e) {
+			gridBlock.Visibility = Visibility.Collapsed;
+			if (e.Cancelled) { return; }
+
+			Dictionary<Type, Deck> decks = (Dictionary<Type, Deck>)e.Result;
+
+			foreach (KeyValuePair<Type, Deck> kvp in decks) {
+				switch (kvp.Key) {
 					case Type.All:
-						deckAll.refresh(best);
+						deckAll.refresh(kvp.Value);
 						break;
 					case Type.Cute:
-						deckCute.refresh(best);
+						deckCute.refresh(kvp.Value);
 						break;
 					case Type.Cool:
-						deckCool.refresh(best);
+						deckCool.refresh(kvp.Value);
 						break;
 					case Type.Passion:
-						deckPassion.refresh(best);
+						deckPassion.refresh(kvp.Value);
 						break;
 				}
 			}

@@ -8,11 +8,11 @@
 	<Grid>
 		<Border BorderThickness="2" BorderBrush="Gray"/>
 		<Grid x:Name="gridContent" Visibility="Visible">
-			<Image x:Name="image" Source="Resources/sample.jpg"/>
+			<Image x:Name="image"/>
 			<Grid x:Name="gridSkill" Width="24" Height="24"
 						HorizontalAlignment="Right" VerticalAlignment="Bottom">
 				<Ellipse x:Name="circle" Fill="{DynamicResource GuardBrush}"/>
-				<Image x:Name="skillImage" Source="Resources/heal.png" Margin="2"/>
+				<Image x:Name="skillImage" Margin="2"/>
 			</Grid>
 		</Grid>
 	</Grid>

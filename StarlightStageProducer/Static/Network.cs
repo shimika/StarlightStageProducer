@@ -88,7 +88,7 @@ namespace StarlightStageProducer {
 
 			try { client.DownloadFile(url, tempPath); }
 			catch (Exception ex) {
-				Console.WriteLine(ex.Message);
+				//Console.WriteLine(ex.Message);
 				return false;
 			}
 
@@ -118,8 +118,8 @@ namespace StarlightStageProducer {
 				return streamReader.ReadToEnd();
 			}
 			catch (Exception ex) {
-				MessageBox.Show(ex.Message);
-				Console.WriteLine(ex.Message);
+				//MessageBox.Show(ex.Message);
+				//Console.WriteLine(ex.Message);
 			}
 
 			return null;

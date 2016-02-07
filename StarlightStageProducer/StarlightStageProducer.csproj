@@ -88,6 +88,10 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Model\Bonus.cs" />
+    <Compile Include="Model\Enums.cs" />
+    <Compile Include="Model\IdolSummary.cs" />
+    <Compile Include="Static\Animation.cs" />
     <Compile Include="Static\Info.cs" />
     <Compile Include="Static\Data.cs" />
     <Compile Include="Model\Deck.cs" />

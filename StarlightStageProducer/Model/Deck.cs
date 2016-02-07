@@ -10,13 +10,13 @@ namespace StarlightStageProducer {
 		public int SupportAppeal { get; set; }
 		public int Appeal { get { return MainAppeal + SupportAppeal; } }
 
-		public Idol Leader { get; set; }
-		public Idol Guest { get; set; }
-		public List<Idol> Members { get; set; }
+		public IdolSummary Leader { get; set; }
+		public IdolSummary Guest { get; set; }
+		public List<IdolSummary> Members { get; set; }
 		public HashSet<int> MemberIds { get; set; }
-		public List<Idol> Supporters { get; set; }
+		public List<IdolSummary> Supporters { get; set; }
 
-		public Deck(Idol guest, Idol leader, List<Idol> members) {
+		public Deck(IdolSummary guest, IdolSummary leader, List<IdolSummary> members) {
 			this.Guest = guest;
 			this.Leader = leader;
 			this.Members = members;
@@ -30,9 +30,19 @@ namespace StarlightStageProducer {
 			members.ForEach(i => MainAppeal += i.Appeal);
 		}
 
-		public void SetSupporters(List<Idol> supporters) {
+		public void SetSupporters(List<IdolSummary> supporters) {
 			this.Supporters = supporters;
 			supporters.ForEach(i => SupportAppeal += i.Appeal);
+		}
+
+		public bool isBetter(Deck deck) {
+			if (MainAppeal < deck.MainAppeal) {
+				return true;
+			}
+			if (MainAppeal == deck.MainAppeal && Leader.Appeal < deck.Leader.Appeal) {
+				return true;
+			}
+			return false;
 		}
 	}
 }

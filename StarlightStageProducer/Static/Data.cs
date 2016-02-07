@@ -1,16 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace StarlightStageProducer {
 	class Data {
 		public static string[] RarityString = new string[] { "", "N", "N+", "R", "R+", "SR", "SR+", "SSR", "SSR+" };
-		public static Skill[] SKillIndex = new Skill[] { Skill.Score, Skill.Combo, Skill.PerfectSupport, Skill.ComboSupport, Skill.Heal, Skill.Guard, Skill.None };
+		public static Skill[] SkillIndex = new Skill[] { Skill.Score, Skill.Combo, Skill.PerfectSupport, Skill.ComboSupport, Skill.Heal, Skill.Guard, Skill.None };
 		public enum Burst { Vocal, Dance, Visual, None };
 
 		private static List<Idol> idols = new List<Idol>();
+		private static Dictionary<int, Idol> idolDict = new Dictionary<int, Idol>();
 		public static List<Idol> Idols {
 			get { return idols; }
 			set {
@@ -19,7 +22,12 @@ namespace StarlightStageProducer {
 					.ThenByDescending(i => i.Id).ToList();
 				idols.Where(i => !CountMap.ContainsKey(i.Id))
 					.ToList().ForEach(i => CountMap.Add(i.Id, 0));
+				idolDict = idols.ToDictionary(i => i.Id);
 			}
+		}
+
+		public static Idol GetIdol(int id) {
+			return idolDict[id];
 		}
 
 		public static List<Idol> GetMyIdols() {
@@ -28,13 +36,8 @@ namespace StarlightStageProducer {
 				.SelectMany(i => Enumerable.Repeat(i, CountMap[i.Id])).ToList();
 		}
 
-		public static List<Idol> GetSSR() {
-			return Idols.Where(i => i.RarityNumber == 8).ToList();
-		}
-
 		public static int[] SkillCount = new int[] { 3, 2, 0, 0, 0, 0, 0 };
 		public static Dictionary<int, int> CountMap = new Dictionary<int, int>();
-		private static IdolCompare compare = new IdolCompare();
 		public static Burst BurstMode = Burst.None;
 
 		public static void SetBurstMode(int index) {
@@ -68,93 +71,129 @@ namespace StarlightStageProducer {
 		}
 
 		private static int getSkillIndex(Skill skill) {
-			return Array.IndexOf(SKillIndex, skill);
+			return Array.IndexOf(SkillIndex, skill);
 		}
 
-		public static Deck CalculateBest(List<Idol> myIdols, List<Idol> guests, Burst burstMode, Type musicType) {
+		public static Deck CalculateBest(Burst burstMode, Type musicType) {
 			if (musicType == Type.All && burstMode != Burst.None) { return null; }
-			if (burstMode != Burst.None) { guests = new List<Idol>(new Idol[] { new Idol() }); }
 
+			List<Idol> guests = null;
+			if (burstMode != Burst.None) {
+				guests = new List<Idol>(new Idol[] { new Idol() });
+			}
+			else {
+				guests = Idols.Where(i => i.RarityNumber == 8).ToList();
+			}
+
+			List<Idol> myIdols = Idols
+				.Where(i => CountMap.ContainsKey(i.Id) && 
+							CountMap[i.Id] > 0 &&
+							SkillCount[getSkillIndex(i.Skill)] != 0)
+				.ToList();
+
+			Deck bestDeck = null;
 			List<Deck> deckRank = new List<Deck>();
 			foreach (Idol guest in guests) {
 				foreach (Idol leader in myIdols) {
-					if (SkillCount[getSkillIndex(leader.Skill)] == 0) {
-						continue;
-					}
-
 					Idol[] effectIdols = new Idol[] { leader, guest };
 
-					Idol nGuest = applyBonus(guest, musicType, burstMode, effectIdols);
-					Idol nLeader = applyBonus(leader, musicType, burstMode, effectIdols);
+					Bonus bonus = getBonus(musicType, burstMode, effectIdols);
 
+					IdolSummary nGuest = applyBonus2(guest, bonus, false);
+					IdolSummary nLeader = applyBonus2(leader, bonus, false);
+					
 					int[] skillCount = new int[SkillCount.Length];
 					Array.Copy(SkillCount, skillCount, SkillCount.Length);
 					skillCount[getSkillIndex(leader.Skill)]--;
 
-					List<Idol> members = new List<Idol>();
+
+					List<IdolSummary> members = new List<IdolSummary>();
 					for (int i = 0; i < skillCount.Length; i++) {
 						if (skillCount[i] > 0) {
-							members.AddRange(myIdols
-								.Where(idol => idol.Id != leader.Id)
-								.Distinct(compare)
-								.Where(idol => idol.Skill == SKillIndex[i])
-								.Select(idol => applyBonus(idol, musicType, burstMode, effectIdols))
-								.OrderByDescending(idol => idol.Appeal)
-								.Take(skillCount[i]));
+							members.AddRange(getRankedIdol(myIdols, leader.Id, SkillIndex[i], bonus, skillCount[i]));
 						}
 					}
 
-					deckRank.Add(new Deck(nGuest, nLeader, members));
+					Deck deck = new Deck(nGuest, nLeader, members);
+
+					if (bestDeck == null) {
+						bestDeck = deck;
+					}
+					else if (bestDeck.isBetter(deck)) {
+						bestDeck = deck;
+					}
 				}
 			}
 
-			if (deckRank.Count == 0) { return null; }
+			if (bestDeck == null) { return null; }
 
-			Deck best = deckRank
-				.OrderByDescending(d => d.MainAppeal)
-				.ThenByDescending(d => d.Leader.Appeal)
-				.First();
+			Bonus supportBonus = getBonus(musicType, burstMode, null, true);
 
-			List<Idol> supporters = Idols
-				.Where(i => getIdolLessCount(i.Id, best) > 0)
-				.SelectMany(i => Enumerable.Repeat(i, getIdolLessCount(i.Id, best)))
-				.Select(i => applyBonus(i, musicType, burstMode, null, true))
+			List<IdolSummary> supporters = Idols
+				.Where(i => getIdolLessCount(i.Id, bestDeck) > 0)
+				.SelectMany(i => Enumerable.Repeat(i, getIdolLessCount(i.Id, bestDeck)))
+				.Select(i => applyBonus2(i, supportBonus, true))
 				.OrderByDescending(i => i.Appeal)
 				.Take(10)
 				.ToList();
 
-			best.SetSupporters(supporters);
+			bestDeck.SetSupporters(supporters);
 
-			return best;
+			return bestDeck;
 		}
 
-		private static Idol applyBonus(Idol idol, Type musicType, Burst burst, Idol[] effectIdols, bool isSupporter = false) {
-			int vocal, dance, visual;
-			vocal = dance = visual = 100;
+		public static Dictionary<string, List<IdolSummary>> CacheList = new Dictionary<string, List<IdolSummary>>();
+
+		private static List<IdolSummary> getRankedIdol(List<Idol> idols, int leaderId, Skill skill, Bonus bonus, int count) {
+			string key = string.Format("{0}:{1}", bonus, skill);
+			List<IdolSummary> list = null;
+
+			if (CacheList.ContainsKey(key)) {
+				list = CacheList[key];
+			}
+			else {
+				list = new List<IdolSummary>();
+				foreach(Idol idol in idols) {
+					if (idol.Skill != skill) { continue; }
+					list.Add(applyBonus2(idol, bonus, false));
+				}
+				list.Sort();
+				list = list.Take(6).ToList();
+
+				CacheList.Add(key, list);
+			}
+
+			return list.Where(idol => idol.Id != leaderId).Take(count).ToList();
+		}
+
+		private static Bonus getBonus(Type musicType, Burst burst, Idol[] effectIdols, bool isSupporter = false) {
+			Bonus bonus = new Bonus();
+
+			bonus.AddAppeal(Type.All, AppealType.Vocal, 100);
+			bonus.AddAppeal(Type.All, AppealType.Dance, 100);
+			bonus.AddAppeal(Type.All, AppealType.Visual, 100);
 
 			if (!isSupporter) {
-				vocal += 10;
-				dance += 10;
-				visual += 10;
+				bonus.AddAppeal(Type.All, AppealType.Vocal, 10);
+				bonus.AddAppeal(Type.All, AppealType.Dance, 10);
+				bonus.AddAppeal(Type.All, AppealType.Visual, 10);
 			}
 
 			switch (burst) {
 				case Burst.Vocal:
-					vocal += 150;
+					bonus.AddAppeal(Type.All, AppealType.Vocal, 150);
 					break;
 				case Burst.Dance:
-					dance += 150;
+					bonus.AddAppeal(Type.All, AppealType.Dance, 150);
 					break;
 				case Burst.Visual:
-					visual += 150;
+					bonus.AddAppeal(Type.All, AppealType.Visual, 150);
 					break;
 			}
 
-			if (musicType == Type.All || idol.Type == musicType) {
-				vocal += 30;
-				dance += 30;
-				visual += 30;
-			}
+			bonus.AddAppeal(musicType, AppealType.Vocal, 30);
+			bonus.AddAppeal(musicType, AppealType.Dance, 30);
+			bonus.AddAppeal(musicType, AppealType.Visual, 30);
 
 			if (effectIdols != null) {
 				foreach (Idol effectIdol in effectIdols) {
@@ -182,43 +221,78 @@ namespace StarlightStageProducer {
 							break;
 					}
 
-					if (idol.Type == effectIdol.Type || effectIdol.CenterSkillType == Type.All) {
+					if (effectIdol.CenterSkillType == Type.All) {
 						switch (effectIdol.CenterSkill) {
 							case CenterSkill.All:
-								vocal += value;
-								dance += value;
-								visual += value;
+								bonus.AddAppeal(Type.All, AppealType.Vocal, value);
+								bonus.AddAppeal(Type.All, AppealType.Dance, value);
+								bonus.AddAppeal(Type.All, AppealType.Visual, value);
 								break;
 
 							case CenterSkill.Vocal:
-								vocal += value * 3;
+								bonus.AddAppeal(Type.All, AppealType.Vocal, value * 3);
 								break;
 
 							case CenterSkill.Dance:
-								dance += value * 3;
+								bonus.AddAppeal(Type.All, AppealType.Dance, value * 3);
 								break;
 
 							case CenterSkill.Visual:
-								visual += value * 3;
+								bonus.AddAppeal(Type.All, AppealType.Visual, value * 3);
+								break;
+						}
+					}
+					else {
+						switch (effectIdol.CenterSkill) {
+							case CenterSkill.All:
+								bonus.AddAppeal(effectIdol.Type, AppealType.Vocal, value);
+								bonus.AddAppeal(effectIdol.Type, AppealType.Dance, value);
+								bonus.AddAppeal(effectIdol.Type, AppealType.Visual, value);
+								break;
+
+							case CenterSkill.Vocal:
+								bonus.AddAppeal(effectIdol.Type, AppealType.Vocal, value * 3);
+								break;
+
+							case CenterSkill.Dance:
+								bonus.AddAppeal(effectIdol.Type, AppealType.Dance, value * 3);
+								break;
+
+							case CenterSkill.Visual:
+								bonus.AddAppeal(effectIdol.Type, AppealType.Visual, value * 3);
 								break;
 						}
 					}
 				}
 			}
 
-			Idol nIdol = idol.Clone();
+			return bonus;
+		}
+		
+		private static IdolSummary applyBonus2(Idol idol, Bonus bonus, bool isSupporter) {
+			IdolSummary idolSummary = new IdolSummary();
 
-			nIdol.Vocal = roundUp(idol.Vocal * vocal, 100);
-			nIdol.Dance = roundUp(idol.Dance * dance, 100);
-			nIdol.Visual = roundUp(idol.Visual * visual, 100);
+			if (idol.Id < 0) { return idolSummary; }
+
+			int vocal = bonus.GetAppeal(idol.Type, AppealType.Vocal);
+			int dance = bonus.GetAppeal(idol.Type, AppealType.Dance);
+			int visual = bonus.GetAppeal(idol.Type, AppealType.Visual);
+
+			vocal = roundUp(idol.Vocal * vocal, 100);
+			dance = roundUp(idol.Dance * dance, 100);
+			visual = roundUp(idol.Visual * visual, 100);
 
 			if (isSupporter) {
-				nIdol.Vocal = roundUp(nIdol.Vocal * 5, 10);
-				nIdol.Dance = roundUp(nIdol.Dance * 5, 10);
-				nIdol.Visual = roundUp(nIdol.Visual * 5, 10);
+				vocal = roundUp(vocal * 5, 10);
+				dance = roundUp(dance * 5, 10);
+				visual = roundUp(visual * 5, 10);
 			}
 
-			return nIdol;
+			idolSummary.Id = idol.Id;
+			idolSummary.Skill = idol.Skill;
+			idolSummary.Appeal = vocal + dance + visual;
+
+			return idolSummary;
 		}
 
 		private static int roundUp(int value, int divider) {

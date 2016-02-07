@@ -26,7 +26,7 @@
 				</Grid.ColumnDefinitions>
 				<local:ImageButton x:Name="buttonOption" Size="50" InnerMargin="10"
 								   Source="Resources/more.png" Response="buttonOption_Response"/>
-				<ComboBox x:Name="comboBurst" Grid.Column="1">
+				<ComboBox x:Name="comboBurst" Grid.Column="1" SelectionChanged="ComboBurst_SelectionChanged">
 					<ComboBoxItem Content="None"/>
 					<ComboBoxItem Content="Vocal burst"/>
 					<ComboBoxItem Content="Dance burst"/>
@@ -141,21 +141,34 @@
 				<Grid.ColumnDefinitions>
 					<ColumnDefinition Width="50"/>
 					<ColumnDefinition Width="*"/>
-					<ColumnDefinition Width="50"/>
+					<ColumnDefinition Width="90"/>
+					<ColumnDefinition Width="90"/>
+					<ColumnDefinition Width="90"/>
 				</Grid.ColumnDefinitions>
 				<local:ImageButton x:Name="buttonBack" 
 								   Grid.Column="0" HorizontalAlignment="Right" Size="50" 
 								   Source="Resources/back.png"
 								   Response="buttonBack_Response"/>
 				<TextBlock x:Name="textSelectCount" Grid.Column="1"
-						   VerticalAlignment="Center"
+						   VerticalAlignment="Center" Visibility="Collapsed"
 						   FontSize="16"/>
+
+				<TextBox x:Name="textboxFilter" Grid.Column="1" Margin="10" TextChanged="textboxFilter_TextChanged"/>
+
+				<CheckBox x:Name="checkCute" Grid.Column="2" Content="큐트" IsChecked="True"/>
+				<CheckBox x:Name="checkCool" Grid.Column="3" Content="쿨" IsChecked="True"/>
+				<CheckBox x:Name="checkPassion" Grid.Column="4" Content="패션" IsChecked="True"/>
 
 				<local:ImageButton x:Name="buttonOpenFolder" Visibility="Collapsed"
 								   Grid.Column="2" HorizontalAlignment="Right" Size="50"
 								   Source="Resources/more.png" InnerMargin="10"/>
 			</Grid>
 			<ScrollViewer Grid.Row="1">
+				<!-- 
+				<WrapPanel x:Name="gridContent">
+					
+				</WrapPanel>
+				-->
 				<Grid x:Name="gridContent">
 
 				</Grid>

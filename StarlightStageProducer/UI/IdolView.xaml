@@ -7,8 +7,7 @@
 			 Width="70" Height="70" HorizontalAlignment="Left" VerticalAlignment="Top">
 	<Grid Background="White" MouseEnter="Grid_MouseEnter" MouseLeave="Grid_MouseLeave">
 		<Image x:Name="image" 
-			   Width="64" Height="64"
-			   Source="/Resources/sample.jpg" />
+			   Width="64" Height="64"/>
 		<Grid x:Name="gridSelection" Width="24" Height="24"
 				 HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="5">
 			<Ellipse x:Name="circle" Fill="{DynamicResource CuteBrush}"/>
@@ -22,14 +21,14 @@
 					<Grid Width="24" Height="24"
 					 HorizontalAlignment="Right" VerticalAlignment="Bottom">
 						<Ellipse Fill="{DynamicResource CuteBrush}"/>
-						<Image Source="Resources/bonus.png" Margin="2"/>
+						<Image Source="/Resources/bonus.png" Margin="2"/>
 					</Grid>
 				</Button>
 				<Button x:Name="buttonDown" Background="Transparent" Margin="2" Click="buttonDown_Click">
 					<Grid Width="24" Height="24"
 					 HorizontalAlignment="Right" VerticalAlignment="Bottom">
 						<Ellipse Fill="{DynamicResource CoolBrush}"/>
-						<Image Source="Resources/down.png" Margin="2"/>
+						<Image Source="/Resources/down.png" Margin="2"/>
 					</Grid>
 				</Button>
 			</StackPanel>

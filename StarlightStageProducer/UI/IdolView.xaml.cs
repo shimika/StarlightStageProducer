@@ -33,12 +33,19 @@ namespace StarlightStageProducer {
 			try { image.Source = new BitmapImage(new Uri(path)); }
 			catch { }
 
-			if(idol.Type == Type.All) {
-				MessageBox.Show(idol.Name);
-			}
-
 			circle.Fill = FindResource(idol.Type + "Brush") as SolidColorBrush;
 			ToolTip = Info.GetInfo(idol.Id);
+		}
+
+		public Type getIdolType() {
+			return idol.Type;
+		}
+
+		public bool getVisibility(bool type, string filter) {
+			if (filter == "") {
+				return type;
+			}
+			return type && idol.ParsedName.IndexOf(filter) >= 0;
 		}
 
 		public void setSelection(int count) {
