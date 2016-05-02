@@ -22,6 +22,8 @@ namespace StarlightStageProducer {
 		public event EventHandler<DataEventArgs> Completed;
 		public event EventHandler<LoadingEventArgs> Loading;
 
+		public enum Status { OK, Error, Cached };
+
 		public Network() {
 			random = new Random();
 		}
@@ -49,13 +51,17 @@ namespace StarlightStageProducer {
 
 			for (int i = 0; i < idols.Count; i++) {
 				Idol idol = idols[i];
-				if (!DownloadImage(idol.ImageUrl, idol.Id)) {
+				Status status = DownloadImage(idol.ImageUrl, idol.Id);
+				if (DownloadImage(idol.ImageUrl, idol.Id) == Status.Error) {
 					success = false;
 					break;
 				}
 
 				SendLoadingStatus(string.Format("Image downloading... {0} / {1}", i + 1, idols.Count));
-				Thread.Sleep(Delay);
+
+				if (status == Status.OK) {
+					Thread.Sleep(Delay);
+				}
 			}
 
 			if (!success) { idols = null; }
@@ -73,11 +79,10 @@ namespace StarlightStageProducer {
 			}
 		}
 
-		public static bool DownloadImage(string url, int id) {
+		public static Status DownloadImage(string url, int id) {
 			string path = string.Format("{0}{1}.jpg", FileSystem.DataFolder, id);
 			if (File.Exists(path)) {
-				Console.WriteLine(path + " exists");
-				return true;
+				return Status.Cached;
 			}
 
 			Random random = new Random();
@@ -89,11 +94,11 @@ namespace StarlightStageProducer {
 			try { client.DownloadFile(url, tempPath); }
 			catch (Exception ex) {
 				//Console.WriteLine(ex.Message);
-				return false;
+				return Status.Error;
 			}
 
 			File.Move(tempPath, path);		
-			return true;
+			return Status.OK;
 		}
 
 		public static string GET(string url) {

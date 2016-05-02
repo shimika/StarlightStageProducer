@@ -63,6 +63,9 @@ namespace StarlightStageProducer {
 					case Skill.Guard:
 						imageName = "guard.png";
 						break;
+					case Skill.Overload:
+						imageName = "overload.png";
+						break;
 					default:
 						gridSkill.Visibility = Visibility.Collapsed;
 						return;

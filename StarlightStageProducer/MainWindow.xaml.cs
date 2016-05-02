@@ -166,7 +166,8 @@ namespace StarlightStageProducer {
 			selectComboSupport.SetIndex(Data.SkillCount[3]);
 			selectHeal.SetIndex(Data.SkillCount[4]);
 			selectGuard.SetIndex(Data.SkillCount[5]);
-			selectNone.SetIndex(Data.SkillCount[6]);
+			selectOverload.SetIndex(Data.SkillCount[6]);
+			selectNone.SetIndex(Data.SkillCount[7]);
 
 			textOptionError.Visibility = Visibility.Collapsed;
 			gridOption.Visibility = Visibility.Visible;
@@ -241,8 +242,8 @@ namespace StarlightStageProducer {
 		private void buttonSaveOption_Response(object sender, CustomButtonEventArgs e) {
 			int sum = selectScore.SelectedIndex + selectCombo.SelectedIndex +
 				selectHeal.SelectedIndex + selectGuard.SelectedIndex +
-				selectPerfectSupport.SelectedIndex + selectComboSupport.SelectedIndex + 
-				selectNone.SelectedIndex;
+				selectPerfectSupport.SelectedIndex + selectComboSupport.SelectedIndex +
+				selectOverload.SelectedIndex + selectNone.SelectedIndex;
 
 			if (sum != 5) {
 				textOptionError.Visibility = Visibility.Visible;
@@ -255,10 +256,18 @@ namespace StarlightStageProducer {
 			Data.SkillCount[3] = selectComboSupport.SelectedIndex;
 			Data.SkillCount[4] = selectHeal.SelectedIndex;
 			Data.SkillCount[5] = selectGuard.SelectedIndex;
-			Data.SkillCount[6] = selectNone.SelectedIndex;
+			Data.SkillCount[6] = selectOverload.SelectedIndex;
+			Data.SkillCount[7] = selectNone.SelectedIndex;
 
 			gridOption.Visibility = Visibility.Collapsed;
 			calculate();
+		}
+
+		private void IgnoreSkill_Changed(object sender, RoutedEventArgs e) {
+			if (this.IsLoaded) {
+				Data.CheckSkill = (checkIgnoreSkill.IsChecked == false);
+				calculate();
+			}
 		}
 	}
 }

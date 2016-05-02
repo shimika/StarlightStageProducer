@@ -185,20 +185,11 @@ namespace StarlightStageProducer {
 				} else if (split[0] == "S") {
 					switch (split[1]) {
 						case "스코어":
-							if (infoScore == null) {
-								this.Skill = Skill.None;
-							}
-							else {
-								if (infoScore.IndexOf("PERFECT 스코어") >= 0 || infoScore.IndexOf("PERFECT/GREAT 스코어") >= 0) {
-									this.Skill = Skill.Score;
-								}
-								else if (infoScore.IndexOf("COMBO 보너스") >= 0 || infoScore.IndexOf("COMBOボーナス") >= 0) {
-									this.Skill = Skill.Combo;
-								}
-								else {
-									this.Skill = Skill.None;
-								}
-							}
+							this.Skill = Skill.Score;
+							break;
+
+						case "콤보보너스":
+							this.Skill = Skill.Combo;
 							break;
 
 						case "회복":
@@ -207,7 +198,6 @@ namespace StarlightStageProducer {
 
 						case "판강":
 							string infoJudge = Network.GET(string.Format("{0}={1}", Network.InfoEndPoint, infoId));
-
 							if (infoJudge == null) {
 								this.Skill = Skill.None;
 							}
@@ -226,6 +216,10 @@ namespace StarlightStageProducer {
 								}
 							}
 
+							break;
+
+						case "오버로드":
+							this.Skill = Skill.Overload;
 							break;
 
 						case "무적":

@@ -20,6 +20,7 @@
 				<Grid.ColumnDefinitions>
 					<ColumnDefinition Width="50"/>
 					<ColumnDefinition Width="150"/>
+					<ColumnDefinition Width="150"/>
 					<ColumnDefinition Width="*"/>
 					<ColumnDefinition Width="50"/>
 					<ColumnDefinition Width="50"/>
@@ -32,14 +33,21 @@
 					<ComboBoxItem Content="Dance burst"/>
 					<ComboBoxItem Content="Visual burst"/>
 				</ComboBox>
+				<CheckBox x:Name="checkIgnoreSkill"
+						  Grid.Column="2" 
+						  Checked="IgnoreSkill_Changed" 
+						  Unchecked="IgnoreSkill_Changed">
+					<TextBlock Text="Ignore skill" 
+							   FontWeight="Bold"/>
+				</CheckBox>
 				<local:ImageButton x:Name="buttonDownload" 
-								   Grid.Column="3" 
+								   Grid.Column="4" 
 								   HorizontalAlignment="Right" 
 								   Size="50" 
 								   Source="Resources/download.png"
 								   Response="buttonDownload_Response"/>
 				<local:ImageButton x:Name="buttonAlbum" 
-								   Grid.Column="4" 
+								   Grid.Column="5" 
 								   HorizontalAlignment="Right" 
 								   Size="50" 
 								   Source="Resources/show.png"
@@ -126,6 +134,7 @@
 						<local:NumberSelector x:Name="selectComboSupport" Title="ComboSupport"/>
 						<local:NumberSelector x:Name="selectHeal" Title="Heal"/>
 						<local:NumberSelector x:Name="selectGuard" Title="Guard"/>
+						<local:NumberSelector x:Name="selectOverload" Title="Overload"/>
 						<local:NumberSelector x:Name="selectNone" Title="None"/>
 					</StackPanel>
 				</Grid>

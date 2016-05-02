@@ -20,6 +20,7 @@
 		<SolidColorBrush x:Key="ComboSupportBrush" Color="#fdb602"/>
 		<SolidColorBrush x:Key="HealBrush" Color="#47c229"/>
 		<SolidColorBrush x:Key="GuardBrush" Color="#1daae2"/>
+		<SolidColorBrush x:Key="OverloadBrush" Color="#cc3c8e"/>
 		<SolidColorBrush x:Key="NoneBrush" Color="Transparent"/>
 
 		<SolidColorBrush x:Key="PrimaryBrush" Color="Black"/>

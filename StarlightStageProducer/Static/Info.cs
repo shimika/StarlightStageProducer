@@ -135,6 +135,22 @@ namespace StarlightStageProducer.Static {
 					skill = "무적";
 					break;
 
+				case Skill.Overload:
+					switch (idol.Rarity) {
+						case Rarity.R:
+							skill = "오버로드";
+							break;
+
+						case Rarity.SR:
+							skill = "라이프를 15 소모\nPERFECT 스코어가 보너스 16%\nNice/Bad 콤보 유지";
+							break;
+
+						case Rarity.SSR:
+							skill = "오버로드";
+							break;
+					}
+					break;
+
 				case Skill.Heal:
 					switch (idol.Rarity) {
 						case Rarity.R:

@@ -9,7 +9,16 @@ using System.Windows;
 namespace StarlightStageProducer {
 	class Data {
 		public static string[] RarityString = new string[] { "", "N", "N+", "R", "R+", "SR", "SR+", "SSR", "SSR+" };
-		public static Skill[] SkillIndex = new Skill[] { Skill.Score, Skill.Combo, Skill.PerfectSupport, Skill.ComboSupport, Skill.Heal, Skill.Guard, Skill.None };
+		public static Skill[] SkillIndex = new Skill[] {
+			Skill.Score,
+			Skill.Combo,
+			Skill.PerfectSupport,
+			Skill.ComboSupport,
+			Skill.Heal,
+			Skill.Guard,
+			Skill.Overload,
+			Skill.None
+		};
 		public enum Burst { Vocal, Dance, Visual, None };
 
 		private static List<Idol> idols = new List<Idol>();
@@ -36,9 +45,10 @@ namespace StarlightStageProducer {
 				.SelectMany(i => Enumerable.Repeat(i, CountMap[i.Id])).ToList();
 		}
 
-		public static int[] SkillCount = new int[] { 3, 2, 0, 0, 0, 0, 0 };
+		public static int[] SkillCount = new int[] { 3, 2, 0, 0, 0, 0, 0, 0 };
 		public static Dictionary<int, int> CountMap = new Dictionary<int, int>();
 		public static Burst BurstMode = Burst.None;
+		public static bool CheckSkill = true;
 
 		public static void SetBurstMode(int index) {
 			switch (index) {
@@ -87,8 +97,8 @@ namespace StarlightStageProducer {
 
 			List<Idol> myIdols = Idols
 				.Where(i => CountMap.ContainsKey(i.Id) && 
-							CountMap[i.Id] > 0 &&
-							SkillCount[getSkillIndex(i.Skill)] != 0)
+							CountMap[i.Id] > 0)
+				.Where(i => (!CheckSkill || SkillCount[getSkillIndex(i.Skill)] != 0))
 				.ToList();
 
 			Deck bestDeck = null;
@@ -101,17 +111,22 @@ namespace StarlightStageProducer {
 
 					IdolSummary nGuest = applyBonus2(guest, bonus, false);
 					IdolSummary nLeader = applyBonus2(leader, bonus, false);
-					
-					int[] skillCount = new int[SkillCount.Length];
-					Array.Copy(SkillCount, skillCount, SkillCount.Length);
-					skillCount[getSkillIndex(leader.Skill)]--;
-
 
 					List<IdolSummary> members = new List<IdolSummary>();
-					for (int i = 0; i < skillCount.Length; i++) {
-						if (skillCount[i] > 0) {
-							members.AddRange(getRankedIdol(myIdols, leader.Id, SkillIndex[i], bonus, skillCount[i]));
+
+					if (CheckSkill) {
+						int[] skillCount = new int[SkillCount.Length];
+						Array.Copy(SkillCount, skillCount, SkillCount.Length);
+						skillCount[getSkillIndex(leader.Skill)]--;
+
+						for (int i = 0; i < skillCount.Length; i++) {
+							if (skillCount[i] > 0) {
+								members.AddRange(getRankedIdol(myIdols, leader.Id, SkillIndex[i], bonus, skillCount[i]));
+							}
 						}
+					}
+					else {
+						members.AddRange(getRankedIdol(myIdols, leader.Id, Skill.Ignore, bonus, 4));
 					}
 
 					Deck deck = new Deck(nGuest, nLeader, members);
@@ -154,7 +169,7 @@ namespace StarlightStageProducer {
 			else {
 				list = new List<IdolSummary>();
 				foreach(Idol idol in idols) {
-					if (idol.Skill != skill) { continue; }
+					if (skill != Skill.Ignore && idol.Skill != skill) { continue; }
 					list.Add(applyBonus2(idol, bonus, false));
 				}
 				list.Sort();
