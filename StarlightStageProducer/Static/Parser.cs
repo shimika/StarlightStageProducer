@@ -50,6 +50,27 @@ namespace StarlightStageProducer {
 			return idols;
 		}
 
+		public static String GetLastestVersion(string html) {
+			if (html == null) { return null; }
+
+			List<Idol> idols = new List<Idol>();
+
+			HtmlDocument doc = new HtmlDocument();
+			doc.LoadHtml(html);
+
+			removeTag(doc, "//div[@class='ndata']");
+			removeTag(doc, "//span[@class='cmtnum']");
+
+			HtmlNodeCollection nodeList = doc.DocumentNode.SelectNodes("//h1[@class='release-title']");
+
+			for (int i = 0; i < nodeList.Count; i++) {
+				HtmlNode node = nodeList[i];
+				return node.InnerText.Trim();
+			}
+
+			return null;
+		}
+
 		private static void removeTag(HtmlDocument doc, string xPath) {
 			HtmlNodeCollection nDataList = doc.DocumentNode.SelectNodes(xPath);
 			if (nDataList != null) {

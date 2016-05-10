@@ -64,6 +64,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Version.cs" />
     <Page Include="UI\DeckContainer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -192,6 +193,9 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\overload.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\sync.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

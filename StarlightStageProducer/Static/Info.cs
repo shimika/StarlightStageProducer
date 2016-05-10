@@ -106,7 +106,7 @@ namespace StarlightStageProducer.Static {
 							break;
 
 						case Rarity.SSR:
-							skill = "콤보 보너스 12%";
+							skill = "콤보 보너스 15%";
 							break;
 					}
 					break;

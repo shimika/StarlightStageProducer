@@ -232,8 +232,6 @@ namespace StarlightStageProducer {
 
 		Storyboard sb;
 		public void StartAnimateImage(int direction = -1) {
-			this.IsHitTestVisible = false;
-
 			if (sb == null) {
 				sb = new Storyboard() {
 					RepeatBehavior = RepeatBehavior.Forever,
@@ -254,15 +252,12 @@ namespace StarlightStageProducer {
 				Storyboard.SetTargetProperty(da, new PropertyPath(Image.OpacityProperty));
 				sb.Children.Add(da);
 				 */
-
 			}
 
 			sb.Begin(this, true);
 		}
 
 		public void StopAnimateImage() {
-			this.IsHitTestVisible = true;
-
 			if (sb != null) {
 				sb.Stop(this);
 			}

@@ -35,7 +35,12 @@ namespace StarlightStageProducer {
 			checkCool.Unchecked += CheckBox_ValueChanged;
 			checkPassion.Checked += CheckBox_ValueChanged;
 			checkPassion.Unchecked += CheckBox_ValueChanged;
-			
+
+			BackgroundWorker bw = new BackgroundWorker();
+			bw.DoWork += VersionSync;
+			bw.RunWorkerCompleted += VersionSyncComplete;
+			bw.RunWorkerAsync();
+
 			refresh("");
 			calculate();
 		}
@@ -267,6 +272,27 @@ namespace StarlightStageProducer {
 			if (this.IsLoaded) {
 				Data.CheckSkill = (checkIgnoreSkill.IsChecked == false);
 				calculate();
+			}
+		}
+
+		string LastestUrl = "https://github.com/shimika/StarlightStageProducer/releases/latest";
+
+		private void buttonVersionSync_Response(object sender, CustomButtonEventArgs e) {
+			System.Diagnostics.Process.Start(LastestUrl);
+		}
+
+		private void VersionSync(object sender, DoWorkEventArgs e) {
+			string html = Network.GET(LastestUrl);
+			e.Result = Parser.GetLastestVersion(html);
+		}
+
+		private void VersionSyncComplete(object sender, RunWorkerCompletedEventArgs e) {
+			if (e.Result != null) {
+				if (!e.Result.ToString().Equals(Version.version)) {
+					buttonVersionSync.ViewMode = ImageButton.Mode.Visible;
+					buttonVersionSync.ToolTip = string.Format("{0} released", e.Result);
+					buttonVersionSync.StartAnimateImage();
+				}
 			}
 		}
 	}
