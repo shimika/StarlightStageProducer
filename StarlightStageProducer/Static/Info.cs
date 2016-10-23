@@ -25,19 +25,19 @@ namespace StarlightStageProducer.Static {
 			string target = "";
 			int skillBonus = 0, rarityBonus = 0;
 			switch (idol.CenterSkillType) {
-				case Type.All:
+				case CenterSkillType.All:
 					skillBonus = 8;
 					target = "모든 아이돌의 ";
 					break;
-				case Type.Cute:
+				case CenterSkillType.Cute:
 					skillBonus = 10;
 					target = "큐트 아이돌의 ";
 					break;
-				case Type.Cool:
+				case CenterSkillType.Cool:
 					skillBonus = 10;
 					target = "쿨 아이돌의 ";
 					break;
-				case Type.Passion:
+				case CenterSkillType.Passion:
 					skillBonus = 10;
 					target = "패션 아이돌의 ";
 					break;

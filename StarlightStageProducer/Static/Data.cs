@@ -214,7 +214,7 @@ namespace StarlightStageProducer {
 				foreach (Idol effectIdol in effectIdols) {
 					int value = 1;
 					switch (effectIdol.CenterSkillType) {
-						case Type.All:
+						case CenterSkillType.All:
 							value = 8;
 							break;
 						default:
@@ -236,7 +236,7 @@ namespace StarlightStageProducer {
 							break;
 					}
 
-					if (effectIdol.CenterSkillType == Type.All) {
+					if (effectIdol.CenterSkillType == CenterSkillType.All) {
 						switch (effectIdol.CenterSkill) {
 							case CenterSkill.All:
 								bonus.AddAppeal(Type.All, AppealType.Vocal, value);
