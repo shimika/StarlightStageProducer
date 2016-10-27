@@ -131,7 +131,33 @@ namespace StarlightStageProducer {
 
 					Deck deck = new Deck(nGuest, nLeader, members);
 
-					if (bestDeck == null) {
+                    if (leader.CenterSkillType == CenterSkillType.Fes || guest.CenterSkillType == CenterSkillType.Fes)
+                    {
+                        int cuteCount=0, coolCount=0, passionCount = 0;
+                        switch (nLeader.Type) {
+                            case Type.Cute: cuteCount++; break;
+                            case Type.Cool: coolCount++; break;
+                            case Type.Passion: passionCount++; break;
+                        }
+                        switch (nGuest.Type)
+                        {
+                            case Type.Cute: cuteCount++; break;
+                            case Type.Cool: coolCount++; break;
+                            case Type.Passion: passionCount++; break;
+                        }
+                        foreach (IdolSummary i in members)
+                        {
+                            switch (i.Type)
+                            {
+                                case Type.Cute: cuteCount++; break;
+                                case Type.Cool: coolCount++; break;
+                                case Type.Passion: passionCount++; break;
+                            }
+                        }
+                        if (cuteCount == 0 || coolCount == 0 || passionCount == 0) continue;
+                    }
+
+                    if (bestDeck == null) {
 						bestDeck = deck;
 					}
 					else if (bestDeck.isBetter(deck)) {
@@ -212,11 +238,14 @@ namespace StarlightStageProducer {
 
 			if (effectIdols != null) {
 				foreach (Idol effectIdol in effectIdols) {
-					int value = 1;
+					float value = 1;
 					switch (effectIdol.CenterSkillType) {
-						case Type.All:
+						case CenterSkillType.All:
 							value = 8;
 							break;
+                        case CenterSkillType.Fes:
+                            value = 100 / 9;
+                            break;
 						default:
 							value = 10;
 							break;
@@ -236,45 +265,45 @@ namespace StarlightStageProducer {
 							break;
 					}
 
-					if (effectIdol.CenterSkillType == Type.All) {
+					if (effectIdol.CenterSkillType == CenterSkillType.All || effectIdol.CenterSkillType == CenterSkillType.Fes) {
 						switch (effectIdol.CenterSkill) {
 							case CenterSkill.All:
-								bonus.AddAppeal(Type.All, AppealType.Vocal, value);
-								bonus.AddAppeal(Type.All, AppealType.Dance, value);
-								bonus.AddAppeal(Type.All, AppealType.Visual, value);
+								bonus.AddAppeal(Type.All, AppealType.Vocal, (int)value);
+								bonus.AddAppeal(Type.All, AppealType.Dance, (int)value);
+								bonus.AddAppeal(Type.All, AppealType.Visual, (int)value);
 								break;
 
 							case CenterSkill.Vocal:
-								bonus.AddAppeal(Type.All, AppealType.Vocal, value * 3);
+								bonus.AddAppeal(Type.All, AppealType.Vocal, (int)(value * 3));
 								break;
 
 							case CenterSkill.Dance:
-								bonus.AddAppeal(Type.All, AppealType.Dance, value * 3);
+								bonus.AddAppeal(Type.All, AppealType.Dance, (int)(value * 3));
 								break;
 
 							case CenterSkill.Visual:
-								bonus.AddAppeal(Type.All, AppealType.Visual, value * 3);
+								bonus.AddAppeal(Type.All, AppealType.Visual, (int)(value * 3));
 								break;
 						}
 					}
 					else {
 						switch (effectIdol.CenterSkill) {
 							case CenterSkill.All:
-								bonus.AddAppeal(effectIdol.Type, AppealType.Vocal, value);
-								bonus.AddAppeal(effectIdol.Type, AppealType.Dance, value);
-								bonus.AddAppeal(effectIdol.Type, AppealType.Visual, value);
+								bonus.AddAppeal(effectIdol.Type, AppealType.Vocal, (int)value);
+								bonus.AddAppeal(effectIdol.Type, AppealType.Dance, (int)value);
+								bonus.AddAppeal(effectIdol.Type, AppealType.Visual, (int)value);
 								break;
 
 							case CenterSkill.Vocal:
-								bonus.AddAppeal(effectIdol.Type, AppealType.Vocal, value * 3);
+								bonus.AddAppeal(effectIdol.Type, AppealType.Vocal, (int)(value * 3));
 								break;
 
 							case CenterSkill.Dance:
-								bonus.AddAppeal(effectIdol.Type, AppealType.Dance, value * 3);
+								bonus.AddAppeal(effectIdol.Type, AppealType.Dance, (int)(value * 3));
 								break;
 
 							case CenterSkill.Visual:
-								bonus.AddAppeal(effectIdol.Type, AppealType.Visual, value * 3);
+								bonus.AddAppeal(effectIdol.Type, AppealType.Visual, (int)(value * 3));
 								break;
 						}
 					}
@@ -306,6 +335,7 @@ namespace StarlightStageProducer {
 			idolSummary.Id = idol.Id;
 			idolSummary.Skill = idol.Skill;
 			idolSummary.Appeal = vocal + dance + visual;
+            idolSummary.Type = idol.Type;
 
 			return idolSummary;
 		}

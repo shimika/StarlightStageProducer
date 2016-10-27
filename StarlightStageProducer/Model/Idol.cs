@@ -16,7 +16,7 @@ namespace StarlightStageProducer {
 		public int Visual { get; set; }
 		public string OriginalName { get; internal set; }
 		public CenterSkill CenterSkill { get; internal set; }
-		public Type CenterSkillType { get; internal set; }
+		public CenterSkillType CenterSkillType { get; internal set; }
 		public Skill Skill { get; internal set; }
 
 		public string ParsedName { get; internal set; }
@@ -38,7 +38,7 @@ namespace StarlightStageProducer {
 			this.Type = Type.All;
 			this.Rarity = Rarity.N;
 			this.CenterSkill = CenterSkill.None;
-			this.CenterSkillType = Type.All;
+			this.CenterSkillType = CenterSkillType.All;
 		}
 
 		private T parseEnum<T>(string str) where T : struct, IConvertible {
@@ -65,10 +65,10 @@ namespace StarlightStageProducer {
 			this.OriginalName = originalName;
 			this.CenterSkill = parseEnum<CenterSkill>(centerSkill);
 			this.Skill = parseEnum<Skill>(skill);
-			this.CenterSkillType = parseEnum<Type>(centerSkillType);
+			this.CenterSkillType = parseEnum<CenterSkillType>(centerSkillType);
 		}
 
-		public Idol(int id, Rarity rarity, int rarityNumber, string imageUrl, int infoId, Type type, int vocal, int dance, int visual, string name, string originalName, CenterSkill centerSkill, Type centerSkillType, Skill skill) {
+		public Idol(int id, Rarity rarity, int rarityNumber, string imageUrl, int infoId, Type type, int vocal, int dance, int visual, string name, string originalName, CenterSkill centerSkill, CenterSkillType centerSkillType, Skill skill) {
 			this.Id = id;
 			this.Rarity = rarity;
 			this.RarityNumber = rarityNumber;
@@ -153,18 +153,22 @@ namespace StarlightStageProducer {
 
 				string infoScore = Network.GET(string.Format("{0}={1}", Network.InfoEndPoint, infoId));
 
-				this.CenterSkillType = Type.All;
+				this.CenterSkillType = CenterSkillType.All;
 
-				if (infoScore.IndexOf("큐트 아이돌") >= 0) {
-					this.CenterSkillType = Type.Cute;
+                if (infoScore.IndexOf("큐트 아이돌") >= 0) {
+					this.CenterSkillType = CenterSkillType.Cute;
 				} else if(infoScore.IndexOf("쿨 아이돌") >= 0) {
-					this.CenterSkillType = Type.Cool;
+					this.CenterSkillType = CenterSkillType.Cool;
 				}
 				else if(infoScore.IndexOf("패션 아이돌") >= 0) {
-					this.CenterSkillType = Type.Passion;
+					this.CenterSkillType = CenterSkillType.Passion;
 				}
+                else if (infoScore.IndexOf("3 타입 아이돌") >= 0)
+                {
+                    this.CenterSkillType = CenterSkillType.Fes;
+                }
 
-				if (split[0] == "C") {
+                if (split[0] == "C") {
 					switch (split[1]) {
 						case "보컬어필":
 							this.CenterSkill = CenterSkill.Vocal;
