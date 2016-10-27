@@ -275,7 +275,7 @@ namespace StarlightStageProducer {
 			}
 		}
 
-		string LastestUrl = "https://github.com/shimika/StarlightStageProducer/releases/latest";
+		string LastestUrl = "https://github.com/jc5201/StarlightStageProducer/releases/latest";
 
 		private void buttonVersionSync_Response(object sender, CustomButtonEventArgs e) {
 			System.Diagnostics.Process.Start(LastestUrl);
