@@ -155,7 +155,7 @@ namespace StarlightStageProducer {
 
 				this.CenterSkillType = CenterSkillType.All;
 
-				if (infoScore.IndexOf("큐트 아이돌") >= 0) {
+                if (infoScore.IndexOf("큐트 아이돌") >= 0) {
 					this.CenterSkillType = CenterSkillType.Cute;
 				} else if(infoScore.IndexOf("쿨 아이돌") >= 0) {
 					this.CenterSkillType = CenterSkillType.Cool;
@@ -163,8 +163,12 @@ namespace StarlightStageProducer {
 				else if(infoScore.IndexOf("패션 아이돌") >= 0) {
 					this.CenterSkillType = CenterSkillType.Passion;
 				}
+                else if (infoScore.IndexOf("3 타입 아이돌") >= 0)
+                {
+                    this.CenterSkillType = CenterSkillType.Fes;
+                }
 
-				if (split[0] == "C") {
+                if (split[0] == "C") {
 					switch (split[1]) {
 						case "보컬어필":
 							this.CenterSkill = CenterSkill.Vocal;
