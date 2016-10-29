@@ -52,7 +52,7 @@ namespace StarlightStageProducer {
 				.SelectMany(i => Enumerable.Repeat(i, CountMap[i.Id])).ToList();
 		}
 
-		public static int[] SkillCount = new int[] { 3, 2, 0, 0, 0, 0, 0, 0 };
+		public static int[] SkillCount = new int[] { 0, 3, 2, 0, 0, 0, 0, 0 };
 		public static Dictionary<int, int> CountMap = new Dictionary<int, int>();
 		public static Burst BurstMode = Burst.None;
 		public static bool CheckSkill = true;
@@ -137,7 +137,7 @@ namespace StarlightStageProducer {
                         }
                         if (typeCount[getTypeIndex(guest.Type)] != 0)
                         {
-                            typeCount[getTypeIndex(leader.Type)]--;
+                            typeCount[getTypeIndex(guest.Type)]--;
                             typeCount[getTypeIndex(Type.All)]++;
                         }
                     }
@@ -149,11 +149,12 @@ namespace StarlightStageProducer {
                     {
                         for (int i = 0; i < SkillCount.Length; i++)
                         {
-                            skillCount[i + 1] = SkillCount[i];
+                            skillCount[i] = SkillCount[i];
                             skillCount[getSkillIndex(Skill.Ignore)] -= SkillCount[i];
                         }
                     }
                     if (skillCount[getSkillIndex(leader.Skill)] != 0) skillCount[getSkillIndex(leader.Skill)]--;
+                    else if (skillCount[getSkillIndex(Skill.Ignore)] == 0) continue;
                     else skillCount[getSkillIndex(Skill.Ignore)]--;
                     
 
