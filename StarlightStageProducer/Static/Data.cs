@@ -9,17 +9,24 @@ using System.Windows;
 namespace StarlightStageProducer {
 	class Data {
 		public static string[] RarityString = new string[] { "", "N", "N+", "R", "R+", "SR", "SR+", "SSR", "SSR+" };
-		public static Skill[] SkillIndex = new Skill[] {
-			Skill.Score,
-			Skill.Combo,
-			Skill.PerfectSupport,
-			Skill.ComboSupport,
-			Skill.Heal,
-			Skill.Guard,
-			Skill.Overload,
-			Skill.None
+        public static Skill[] SkillIndex = new Skill[] {
+            Skill.None,
+            Skill.Score,
+            Skill.Combo,
+            Skill.PerfectSupport,
+            Skill.ComboSupport,
+            Skill.Heal,
+            Skill.Guard,
+            Skill.Overload,
+            Skill.Ignore
 		};
-		public enum Burst { Vocal, Dance, Visual, None };
+        public static Type[] TypeIndex = new Type[] {
+            Type.All,
+            Type.Cute,
+            Type.Cool,
+            Type.Passion
+        };
+        public enum Burst { Vocal, Dance, Visual, None };
 
 		private static List<Idol> idols = new List<Idol>();
 		private static Dictionary<int, Idol> idolDict = new Dictionary<int, Idol>();
@@ -84,7 +91,12 @@ namespace StarlightStageProducer {
 			return Array.IndexOf(SkillIndex, skill);
 		}
 
-		public static Deck CalculateBest(Burst burstMode, Type musicType) {
+        private static int getTypeIndex(Type type)
+        {
+            return Array.IndexOf(TypeIndex, type);
+        }
+
+        public static Deck CalculateBest(Burst burstMode, Type musicType) {
 			if (musicType == Type.All && burstMode != Burst.None) { return null; }
 
 			List<Idol> guests = null;
@@ -98,7 +110,6 @@ namespace StarlightStageProducer {
 			List<Idol> myIdols = Idols
 				.Where(i => CountMap.ContainsKey(i.Id) && 
 							CountMap[i.Id] > 0)
-				.Where(i => (!CheckSkill || SkillCount[getSkillIndex(i.Skill)] != 0))
 				.ToList();
 
 			Deck bestDeck = null;
@@ -114,49 +125,42 @@ namespace StarlightStageProducer {
 
 					List<IdolSummary> members = new List<IdolSummary>();
 
-					if (CheckSkill) {
-						int[] skillCount = new int[SkillCount.Length];
-						Array.Copy(SkillCount, skillCount, SkillCount.Length);
-						skillCount[getSkillIndex(leader.Skill)]--;
+                    int[] skillCount, typeCount;
 
-						for (int i = 0; i < skillCount.Length; i++) {
-							if (skillCount[i] > 0) {
-								members.AddRange(getRankedIdol(myIdols, leader.Id, SkillIndex[i], bonus, skillCount[i]));
-							}
-						}
-					}
-					else {
-						members.AddRange(getRankedIdol(myIdols, leader.Id, Skill.Ignore, bonus, 4));
-					}
-
-					Deck deck = new Deck(nGuest, nLeader, members);
-
-                    if (leader.CenterSkillType == CenterSkillType.Fes || guest.CenterSkillType == CenterSkillType.Fes)
+                    if(leader.CenterSkillType == CenterSkillType.Fes || guest.CenterSkillType == CenterSkillType.Fes)
                     {
-                        int cuteCount=0, coolCount=0, passionCount = 0;
-                        switch (nLeader.Type) {
-                            case Type.Cute: cuteCount++; break;
-                            case Type.Cool: coolCount++; break;
-                            case Type.Passion: passionCount++; break;
-                        }
-                        switch (nGuest.Type)
+                        typeCount = new int[] { 1, 1, 1, 1 };
+                        if(typeCount[getTypeIndex(leader.Type)] != 0)
                         {
-                            case Type.Cute: cuteCount++; break;
-                            case Type.Cool: coolCount++; break;
-                            case Type.Passion: passionCount++; break;
+                            typeCount[getTypeIndex(leader.Type)]--;
+                            typeCount[getTypeIndex(Type.All)]++;
                         }
-                        foreach (IdolSummary i in members)
+                        if (typeCount[getTypeIndex(guest.Type)] != 0)
                         {
-                            switch (i.Type)
-                            {
-                                case Type.Cute: cuteCount++; break;
-                                case Type.Cool: coolCount++; break;
-                                case Type.Passion: passionCount++; break;
-                            }
+                            typeCount[getTypeIndex(leader.Type)]--;
+                            typeCount[getTypeIndex(Type.All)]++;
                         }
-                        if (cuteCount == 0 || coolCount == 0 || passionCount == 0) continue;
                     }
+                    else typeCount = new int[] { 4, 0, 0, 0 };
 
+                    skillCount = new int[SkillCount.Length + 1];
+                    skillCount[getSkillIndex(Skill.Ignore)] = 5;
+                    if (CheckSkill)
+                    {
+                        for (int i = 0; i < SkillCount.Length; i++)
+                        {
+                            skillCount[i + 1] = SkillCount[i];
+                            skillCount[getSkillIndex(Skill.Ignore)] -= SkillCount[i];
+                        }
+                    }
+                    if (skillCount[getSkillIndex(leader.Skill)] != 0) skillCount[getSkillIndex(leader.Skill)]--;
+                    else skillCount[getSkillIndex(Skill.Ignore)]--;
+                    
+
+                    members.AddRange(getRankedIdol(myIdols, leader.Id, skillCount, typeCount, bonus, 4));
+                    
+					Deck deck = new Deck(nGuest, nLeader, members);
+                    
                     if (bestDeck == null) {
 						bestDeck = deck;
 					}
@@ -185,29 +189,53 @@ namespace StarlightStageProducer {
 
 		public static Dictionary<string, List<IdolSummary>> CacheList = new Dictionary<string, List<IdolSummary>>();
 
-		private static List<IdolSummary> getRankedIdol(List<Idol> idols, int leaderId, Skill skill, Bonus bonus, int count) {
-			string key = string.Format("{0}:{1}", bonus, skill);
-			List<IdolSummary> list = null;
+        private static List<IdolSummary> getRankedIdol(List<Idol> idols, int leaderId, int[] skillCount, int[] typeCount, Bonus bonus, int count)
+        {
+            string key = string.Format("{0}:{1}:{2}:{3}", bonus, skillCount, typeCount, leaderId);
+            List<IdolSummary> list = null;
 
-			if (CacheList.ContainsKey(key)) {
-				list = CacheList[key];
-			}
-			else {
-				list = new List<IdolSummary>();
-				foreach(Idol idol in idols) {
-					if (skill != Skill.Ignore && idol.Skill != skill) { continue; }
-					list.Add(applyBonus2(idol, bonus, false));
-				}
-				list.Sort();
-				list = list.Take(6).ToList();
+            if (CacheList.ContainsKey(key))
+            {
+                list = CacheList[key];
+            }
+            else
+            {
+                list = new List<IdolSummary>();
+                foreach (Idol idol in idols)
+                {
+                    list.Add(applyBonus2(idol, bonus, false));
+                }
+                list.Sort();
 
-				CacheList.Add(key, list);
-			}
+                List<IdolSummary> templist = new List<IdolSummary>();
 
-			return list.Where(idol => idol.Id != leaderId).Take(count).ToList();
-		}
+                int i = 0;
+                while(templist.Count < 6)
+                {
+                    if (i >= list.Count) break;
+                    if (list[i].Id != leaderId)
+                        if((skillCount[getSkillIndex(list[i].Skill)] != 0 || skillCount[getSkillIndex(Skill.Ignore)] != 0) &&
+                            (typeCount[getTypeIndex(list[i].Type)] != 0 || typeCount[getTypeIndex(Type.All)] != 0))
+                        {
+                            templist.Add(list[i]);
 
-		private static Bonus getBonus(Type musicType, Burst burst, Idol[] effectIdols, bool isSupporter = false) {
+                            if (skillCount[getSkillIndex(list[i].Skill)] != 0) skillCount[getSkillIndex(list[i].Skill)]--;
+                            else skillCount[getSkillIndex(Skill.Ignore)]--;
+                            if (typeCount[getTypeIndex(list[i].Type)] != 0) typeCount[getTypeIndex(list[i].Type)]--;
+                            else typeCount[getTypeIndex(Type.All)]--;
+                        }
+                    i++;
+                }
+
+                list = templist;
+
+                CacheList.Add(key, list);
+            }
+
+            return list.Where(idol => idol.Id != leaderId).Take(count).ToList();
+        }
+
+        private static Bonus getBonus(Type musicType, Burst burst, Idol[] effectIdols, bool isSupporter = false) {
 			Bonus bonus = new Bonus();
 
 			bonus.AddAppeal(Type.All, AppealType.Vocal, 100);

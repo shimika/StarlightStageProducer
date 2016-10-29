@@ -6,6 +6,6 @@ using System.Threading.Tasks;
 
 namespace StarlightStageProducer {
 	class Version {
-		public static String version = "1.3";
+		public static String version = "1.31";
 	}
 }
