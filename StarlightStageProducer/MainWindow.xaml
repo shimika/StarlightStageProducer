@@ -127,7 +127,7 @@
 
 					<TextBlock x:Name="textOptionError" Grid.Column="1" Visibility="Collapsed"
 							   FontSize="16" VerticalAlignment="Center" Margin="10,0"
-							   Foreground="Crimson" Text="합을 5로 맞춰주세요."/>
+							   Foreground="Crimson" Text="합을 5이하로 맞춰주세요."/>
 
 					<local:ImageButton x:Name="buttonSaveOption"
 									   Grid.Column="2" HorizontalAlignment="Right" Size="50"

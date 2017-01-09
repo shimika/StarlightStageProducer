@@ -165,14 +165,14 @@ namespace StarlightStageProducer {
 		}
 		private void buttonBackOption_Response(object sender, CustomButtonEventArgs e) { gridOption.Visibility = Visibility.Collapsed; }
 		private void buttonOption_Response(object sender, CustomButtonEventArgs e) {
-			selectScore.SetIndex(Data.SkillCount[0]);
-			selectCombo.SetIndex(Data.SkillCount[1]);
-			selectPerfectSupport.SetIndex(Data.SkillCount[2]);
-			selectComboSupport.SetIndex(Data.SkillCount[3]);
-			selectHeal.SetIndex(Data.SkillCount[4]);
-			selectGuard.SetIndex(Data.SkillCount[5]);
-			selectOverload.SetIndex(Data.SkillCount[6]);
-			selectNone.SetIndex(Data.SkillCount[7]);
+			selectScore.SetIndex(Data.SkillCount[1]);
+			selectCombo.SetIndex(Data.SkillCount[2]);
+			selectPerfectSupport.SetIndex(Data.SkillCount[3]);
+			selectComboSupport.SetIndex(Data.SkillCount[4]);
+			selectHeal.SetIndex(Data.SkillCount[5]);
+			selectGuard.SetIndex(Data.SkillCount[6]);
+			selectOverload.SetIndex(Data.SkillCount[7]);
+			selectNone.SetIndex(Data.SkillCount[0]);
 
 			textOptionError.Visibility = Visibility.Collapsed;
 			gridOption.Visibility = Visibility.Visible;
@@ -250,19 +250,19 @@ namespace StarlightStageProducer {
 				selectPerfectSupport.SelectedIndex + selectComboSupport.SelectedIndex +
 				selectOverload.SelectedIndex + selectNone.SelectedIndex;
 
-			if (sum != 5) {
+			if (sum > 5) {
 				textOptionError.Visibility = Visibility.Visible;
 				return;
 			}
 
-			Data.SkillCount[0] = selectScore.SelectedIndex;
-			Data.SkillCount[1] = selectCombo.SelectedIndex;
-			Data.SkillCount[2] = selectPerfectSupport.SelectedIndex;
-			Data.SkillCount[3] = selectComboSupport.SelectedIndex;
-			Data.SkillCount[4] = selectHeal.SelectedIndex;
-			Data.SkillCount[5] = selectGuard.SelectedIndex;
-			Data.SkillCount[6] = selectOverload.SelectedIndex;
-			Data.SkillCount[7] = selectNone.SelectedIndex;
+            Data.SkillCount[0] = selectNone.SelectedIndex;
+            Data.SkillCount[1] = selectScore.SelectedIndex;
+			Data.SkillCount[2] = selectCombo.SelectedIndex;
+			Data.SkillCount[3] = selectPerfectSupport.SelectedIndex;
+			Data.SkillCount[4] = selectComboSupport.SelectedIndex;
+			Data.SkillCount[5] = selectHeal.SelectedIndex;
+			Data.SkillCount[6] = selectGuard.SelectedIndex;
+			Data.SkillCount[7] = selectOverload.SelectedIndex;
 
 			gridOption.Visibility = Visibility.Collapsed;
 			calculate();
@@ -276,6 +276,7 @@ namespace StarlightStageProducer {
 		}
 
 		string LastestUrl = "https://github.com/shimika/StarlightStageProducer/releases/latest";
+
 
 		private void buttonVersionSync_Response(object sender, CustomButtonEventArgs e) {
 			System.Diagnostics.Process.Start(LastestUrl);

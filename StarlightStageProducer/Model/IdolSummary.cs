@@ -9,11 +9,13 @@ namespace StarlightStageProducer {
 		public int Id { get; set; }
 		public int Appeal { get; set; }
 		public Skill Skill { get; set; }
+        public Type Type { get; set; }
 
 		public IdolSummary() {
 			this.Id = -1;
 			this.Appeal = 0;
-			this.Skill = Skill.None;
+            this.Skill = Skill.None;
+            this.Type = Type.All;
 		}
 
 		public int CompareTo(IdolSummary other) {

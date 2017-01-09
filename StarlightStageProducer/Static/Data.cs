@@ -9,17 +9,24 @@ using System.Windows;
 namespace StarlightStageProducer {
 	class Data {
 		public static string[] RarityString = new string[] { "", "N", "N+", "R", "R+", "SR", "SR+", "SSR", "SSR+" };
-		public static Skill[] SkillIndex = new Skill[] {
-			Skill.Score,
-			Skill.Combo,
-			Skill.PerfectSupport,
-			Skill.ComboSupport,
-			Skill.Heal,
-			Skill.Guard,
-			Skill.Overload,
-			Skill.None
+        public static Skill[] SkillIndex = new Skill[] {
+            Skill.None,
+            Skill.Score,
+            Skill.Combo,
+            Skill.PerfectSupport,
+            Skill.ComboSupport,
+            Skill.Heal,
+            Skill.Guard,
+            Skill.Overload,
+            Skill.Ignore
 		};
-		public enum Burst { Vocal, Dance, Visual, None };
+        public static Type[] TypeIndex = new Type[] {
+            Type.All,
+            Type.Cute,
+            Type.Cool,
+            Type.Passion
+        };
+        public enum Burst { Vocal, Dance, Visual, None };
 
 		private static List<Idol> idols = new List<Idol>();
 		private static Dictionary<int, Idol> idolDict = new Dictionary<int, Idol>();
@@ -45,7 +52,7 @@ namespace StarlightStageProducer {
 				.SelectMany(i => Enumerable.Repeat(i, CountMap[i.Id])).ToList();
 		}
 
-		public static int[] SkillCount = new int[] { 3, 2, 0, 0, 0, 0, 0, 0 };
+		public static int[] SkillCount = new int[] { 0, 3, 2, 0, 0, 0, 0, 0 };
 		public static Dictionary<int, int> CountMap = new Dictionary<int, int>();
 		public static Burst BurstMode = Burst.None;
 		public static bool CheckSkill = true;
@@ -84,7 +91,12 @@ namespace StarlightStageProducer {
 			return Array.IndexOf(SkillIndex, skill);
 		}
 
-		public static Deck CalculateBest(Burst burstMode, Type musicType) {
+        private static int getTypeIndex(Type type)
+        {
+            return Array.IndexOf(TypeIndex, type);
+        }
+
+        public static Deck CalculateBest(Burst burstMode, Type musicType) {
 			if (musicType == Type.All && burstMode != Burst.None) { return null; }
 
 			List<Idol> guests = null;
@@ -98,7 +110,6 @@ namespace StarlightStageProducer {
 			List<Idol> myIdols = Idols
 				.Where(i => CountMap.ContainsKey(i.Id) && 
 							CountMap[i.Id] > 0)
-				.Where(i => (!CheckSkill || SkillCount[getSkillIndex(i.Skill)] != 0))
 				.ToList();
 
 			Deck bestDeck = null;
@@ -114,24 +125,44 @@ namespace StarlightStageProducer {
 
 					List<IdolSummary> members = new List<IdolSummary>();
 
-					if (CheckSkill) {
-						int[] skillCount = new int[SkillCount.Length];
-						Array.Copy(SkillCount, skillCount, SkillCount.Length);
-						skillCount[getSkillIndex(leader.Skill)]--;
+                    int[] skillCount, typeCount;
 
-						for (int i = 0; i < skillCount.Length; i++) {
-							if (skillCount[i] > 0) {
-								members.AddRange(getRankedIdol(myIdols, leader.Id, SkillIndex[i], bonus, skillCount[i]));
-							}
-						}
-					}
-					else {
-						members.AddRange(getRankedIdol(myIdols, leader.Id, Skill.Ignore, bonus, 4));
-					}
+                    if(leader.CenterSkillType == CenterSkillType.Fes || guest.CenterSkillType == CenterSkillType.Fes)
+                    {
+                        typeCount = new int[] { 1, 1, 1, 1 };
+                        if(typeCount[getTypeIndex(leader.Type)] != 0)
+                        {
+                            typeCount[getTypeIndex(leader.Type)]--;
+                            typeCount[getTypeIndex(Type.All)]++;
+                        }
+                        if (typeCount[getTypeIndex(guest.Type)] != 0)
+                        {
+                            typeCount[getTypeIndex(guest.Type)]--;
+                            typeCount[getTypeIndex(Type.All)]++;
+                        }
+                    }
+                    else typeCount = new int[] { 4, 0, 0, 0 };
 
+                    skillCount = new int[SkillCount.Length + 1];
+                    skillCount[getSkillIndex(Skill.Ignore)] = 5;
+                    if (CheckSkill)
+                    {
+                        for (int i = 0; i < SkillCount.Length; i++)
+                        {
+                            skillCount[i] = SkillCount[i];
+                            skillCount[getSkillIndex(Skill.Ignore)] -= SkillCount[i];
+                        }
+                    }
+                    if (skillCount[getSkillIndex(leader.Skill)] != 0) skillCount[getSkillIndex(leader.Skill)]--;
+                    else if (skillCount[getSkillIndex(Skill.Ignore)] == 0) continue;
+                    else skillCount[getSkillIndex(Skill.Ignore)]--;
+                    
+
+                    members.AddRange(getRankedIdol(myIdols, leader.Id, skillCount, typeCount, bonus, 4));
+                    
 					Deck deck = new Deck(nGuest, nLeader, members);
-
-					if (bestDeck == null) {
+                    
+                    if (bestDeck == null) {
 						bestDeck = deck;
 					}
 					else if (bestDeck.isBetter(deck)) {
@@ -159,29 +190,53 @@ namespace StarlightStageProducer {
 
 		public static Dictionary<string, List<IdolSummary>> CacheList = new Dictionary<string, List<IdolSummary>>();
 
-		private static List<IdolSummary> getRankedIdol(List<Idol> idols, int leaderId, Skill skill, Bonus bonus, int count) {
-			string key = string.Format("{0}:{1}", bonus, skill);
-			List<IdolSummary> list = null;
+        private static List<IdolSummary> getRankedIdol(List<Idol> idols, int leaderId, int[] skillCount, int[] typeCount, Bonus bonus, int count)
+        {
+            string key = string.Format("{0}:{1}:{2}:{3}", bonus, skillCount, typeCount, leaderId);
+            List<IdolSummary> list = null;
 
-			if (CacheList.ContainsKey(key)) {
-				list = CacheList[key];
-			}
-			else {
-				list = new List<IdolSummary>();
-				foreach(Idol idol in idols) {
-					if (skill != Skill.Ignore && idol.Skill != skill) { continue; }
-					list.Add(applyBonus2(idol, bonus, false));
-				}
-				list.Sort();
-				list = list.Take(6).ToList();
+            if (CacheList.ContainsKey(key))
+            {
+                list = CacheList[key];
+            }
+            else
+            {
+                list = new List<IdolSummary>();
+                foreach (Idol idol in idols)
+                {
+                    list.Add(applyBonus2(idol, bonus, false));
+                }
+                list.Sort();
 
-				CacheList.Add(key, list);
-			}
+                List<IdolSummary> templist = new List<IdolSummary>();
 
-			return list.Where(idol => idol.Id != leaderId).Take(count).ToList();
-		}
+                int i = 0;
+                while(templist.Count < 6)
+                {
+                    if (i >= list.Count) break;
+                    if (list[i].Id != leaderId)
+                        if((skillCount[getSkillIndex(list[i].Skill)] != 0 || skillCount[getSkillIndex(Skill.Ignore)] != 0) &&
+                            (typeCount[getTypeIndex(list[i].Type)] != 0 || typeCount[getTypeIndex(Type.All)] != 0))
+                        {
+                            templist.Add(list[i]);
 
-		private static Bonus getBonus(Type musicType, Burst burst, Idol[] effectIdols, bool isSupporter = false) {
+                            if (skillCount[getSkillIndex(list[i].Skill)] != 0) skillCount[getSkillIndex(list[i].Skill)]--;
+                            else skillCount[getSkillIndex(Skill.Ignore)]--;
+                            if (typeCount[getTypeIndex(list[i].Type)] != 0) typeCount[getTypeIndex(list[i].Type)]--;
+                            else typeCount[getTypeIndex(Type.All)]--;
+                        }
+                    i++;
+                }
+
+                list = templist;
+
+                CacheList.Add(key, list);
+            }
+
+            return list.Where(idol => idol.Id != leaderId).Take(count).ToList();
+        }
+
+        private static Bonus getBonus(Type musicType, Burst burst, Idol[] effectIdols, bool isSupporter = false) {
 			Bonus bonus = new Bonus();
 
 			bonus.AddAppeal(Type.All, AppealType.Vocal, 100);
@@ -212,11 +267,14 @@ namespace StarlightStageProducer {
 
 			if (effectIdols != null) {
 				foreach (Idol effectIdol in effectIdols) {
-					int value = 1;
+					float value = 1;
 					switch (effectIdol.CenterSkillType) {
-						case Type.All:
+						case CenterSkillType.All:
 							value = 8;
 							break;
+                        case CenterSkillType.Fes:
+                            value = 100 / 9;
+                            break;
 						default:
 							value = 10;
 							break;
@@ -236,45 +294,45 @@ namespace StarlightStageProducer {
 							break;
 					}
 
-					if (effectIdol.CenterSkillType == Type.All) {
+					if (effectIdol.CenterSkillType == CenterSkillType.All || effectIdol.CenterSkillType == CenterSkillType.Fes) {
 						switch (effectIdol.CenterSkill) {
 							case CenterSkill.All:
-								bonus.AddAppeal(Type.All, AppealType.Vocal, value);
-								bonus.AddAppeal(Type.All, AppealType.Dance, value);
-								bonus.AddAppeal(Type.All, AppealType.Visual, value);
+								bonus.AddAppeal(Type.All, AppealType.Vocal, (int)value);
+								bonus.AddAppeal(Type.All, AppealType.Dance, (int)value);
+								bonus.AddAppeal(Type.All, AppealType.Visual, (int)value);
 								break;
 
 							case CenterSkill.Vocal:
-								bonus.AddAppeal(Type.All, AppealType.Vocal, value * 3);
+								bonus.AddAppeal(Type.All, AppealType.Vocal, (int)(value * 3));
 								break;
 
 							case CenterSkill.Dance:
-								bonus.AddAppeal(Type.All, AppealType.Dance, value * 3);
+								bonus.AddAppeal(Type.All, AppealType.Dance, (int)(value * 3));
 								break;
 
 							case CenterSkill.Visual:
-								bonus.AddAppeal(Type.All, AppealType.Visual, value * 3);
+								bonus.AddAppeal(Type.All, AppealType.Visual, (int)(value * 3));
 								break;
 						}
 					}
 					else {
 						switch (effectIdol.CenterSkill) {
 							case CenterSkill.All:
-								bonus.AddAppeal(effectIdol.Type, AppealType.Vocal, value);
-								bonus.AddAppeal(effectIdol.Type, AppealType.Dance, value);
-								bonus.AddAppeal(effectIdol.Type, AppealType.Visual, value);
+								bonus.AddAppeal(effectIdol.Type, AppealType.Vocal, (int)value);
+								bonus.AddAppeal(effectIdol.Type, AppealType.Dance, (int)value);
+								bonus.AddAppeal(effectIdol.Type, AppealType.Visual, (int)value);
 								break;
 
 							case CenterSkill.Vocal:
-								bonus.AddAppeal(effectIdol.Type, AppealType.Vocal, value * 3);
+								bonus.AddAppeal(effectIdol.Type, AppealType.Vocal, (int)(value * 3));
 								break;
 
 							case CenterSkill.Dance:
-								bonus.AddAppeal(effectIdol.Type, AppealType.Dance, value * 3);
+								bonus.AddAppeal(effectIdol.Type, AppealType.Dance, (int)(value * 3));
 								break;
 
 							case CenterSkill.Visual:
-								bonus.AddAppeal(effectIdol.Type, AppealType.Visual, value * 3);
+								bonus.AddAppeal(effectIdol.Type, AppealType.Visual, (int)(value * 3));
 								break;
 						}
 					}
@@ -306,6 +364,7 @@ namespace StarlightStageProducer {
 			idolSummary.Id = idol.Id;
 			idolSummary.Skill = idol.Skill;
 			idolSummary.Appeal = vocal + dance + visual;
+            idolSummary.Type = idol.Type;
 
 			return idolSummary;
 		}
