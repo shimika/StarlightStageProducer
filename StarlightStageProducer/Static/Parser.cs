@@ -34,7 +34,7 @@ namespace StarlightStageProducer {
 				int visual = Convert.ToInt32(node.SelectSingleNode(".//td[@class='etc8']//span[@class='t_passion']").InnerText);
 
 				int id = extractLastNumber(imageUrl, "/");
-				int infoId = extractLastNumber(node.SelectSingleNode(".//a").GetAttributeValue("onmouseover", "0"), "/");
+				int infoId = extractLastNumber(node.SelectSingleNode(".//div[@class='cardName']//a").GetAttributeValue("onmouseover", "0"), "/");
 				string[] names = splitByLine(node.SelectSingleNode(".//td[@class='name left']").InnerHtml);
 				string[] skills = splitByLine(node.SelectSingleNode(".//td[@class='field4']").InnerHtml);
 
