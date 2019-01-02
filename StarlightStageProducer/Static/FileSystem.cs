@@ -59,9 +59,10 @@ namespace StarlightStageProducer {
 				string originalName = getString(obj["OriginalName"]);
 				string centerSkill = getString(obj["CenterSkill"]);
 				string centerSkillType = getString(obj["CenterSkillType"]);
-				string skill = getString(obj["Skill"]);
+                string centerSkillCondition = getString(obj["CenterSkillCondition"]);
+                string skill = getString(obj["Skill"]);
 
-				idols.Add(new Idol(id, rarity, rarityNumber, type, cute, cool, passion, name, originalName, centerSkill, centerSkillType, skill));
+				idols.Add(new Idol(id, rarity, rarityNumber, type, cute, cool, passion, name, originalName, centerSkill, centerSkillType, centerSkillCondition, skill));
 			}
 
 			return idols;
@@ -85,7 +86,8 @@ namespace StarlightStageProducer {
 				obj.Add(new JsonStringValue("OriginalName", idol.OriginalName));
 				obj.Add(new JsonStringValue("CenterSkill", idol.CenterSkill.ToString()));
 				obj.Add(new JsonStringValue("CenterSkillType", idol.CenterSkillType.ToString()));
-				obj.Add(new JsonStringValue("Skill", idol.Skill.ToString()));
+                obj.Add(new JsonStringValue("CenterSkillCondition", idol.CenterSkillCondition.ToString()));
+                obj.Add(new JsonStringValue("Skill", idol.Skill.ToString()));
 				root.Add(obj);
 			}
 
