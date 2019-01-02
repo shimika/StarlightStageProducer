@@ -4,6 +4,8 @@
 
 인벤의 데이터 및 이미지를 사용 중
 
+2016년 11월 이후의 스킬 / 2018년 12월 이후의 센터 스킬에 대해서는 정상작동하지 않을 수 있음
+
 ![alt tag](https://github.com/shimika/StarlightStageProducer/blob/master/ss/1.png)
 
 ![alt tag](https://github.com/shimika/StarlightStageProducer/blob/master/ss/2.png)
