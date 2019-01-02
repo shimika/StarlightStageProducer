@@ -22,8 +22,24 @@ namespace StarlightStageProducer.Static {
 				idol.Visual,
 				idol.Appeal);
 
-			string target = "";
+			string target = "", condition = "";
 			float skillBonus = 0, rarityBonus = 0;
+            switch (idol.CenterSkillCondition)
+            {
+                case CenterSkillCondition.All:
+                    condition = "3 타입 아이돌이 모두 편성되어 있을 경우, ";
+                    break;
+                case CenterSkillCondition.Cute:
+                    condition = "큐트 아이돌만 편성되어 있을 경우, ";
+                    break;
+                case CenterSkillCondition.Cool:
+                    condition = "쿨 아이돌만 편성되어 있을 경우, ";
+                    break;
+                case CenterSkillCondition.Passion:
+                    condition = "패션 아이돌만 편성되어 있을 경우, ";
+                    break;
+            }
+
 			switch (idol.CenterSkillType) {
 				case CenterSkillType.All:
 					skillBonus = 8;
@@ -41,10 +57,6 @@ namespace StarlightStageProducer.Static {
 					skillBonus = 10;
 					target = "패션 아이돌의 ";
 					break;
-                case CenterSkillType.Fes:
-                    skillBonus = 100/9;
-                    target = "3 타입 아이돌이 모두 편성되어 있을 경우, 모든 아이돌의 ";
-                    break;
             }
 
 			switch (idol.Rarity) {
@@ -65,16 +77,16 @@ namespace StarlightStageProducer.Static {
 			string centerSkill = "";
 			switch (idol.CenterSkill) {
 				case CenterSkill.All:
-					centerSkill = string.Format("{0} 모든 어필 {1}%", target, skillBonus * rarityBonus);
+					centerSkill = string.Format("{0}{1}모든 어필 {2}%", condition, target, skillBonus * rarityBonus);
 					break;
 				case CenterSkill.Vocal:
-					centerSkill = string.Format("{0} 보컬 어필 {1}%", target, skillBonus * rarityBonus * 3);
+					centerSkill = string.Format("{0}{1}보컬 어필 {2}%", condition, target, skillBonus * rarityBonus * 3);
 					break;
 				case CenterSkill.Dance:
-					centerSkill = string.Format("{0} 댄스 어필 {1}%", target, skillBonus * rarityBonus * 3);
+					centerSkill = string.Format("{0}{1}댄스 어필 {2}%", condition, target, skillBonus * rarityBonus * 3);
 					break;
 				case CenterSkill.Visual:
-					centerSkill = string.Format("{0} 비쥬얼 어필 {1}%", target, skillBonus * rarityBonus * 3);
+					centerSkill = string.Format("{0}{1}비쥬얼 어필 {2}%", condition, target, skillBonus * rarityBonus * 3);
 					break;
 				case CenterSkill.None:
 					centerSkill = "기타 센터 스킬";

@@ -116,6 +116,8 @@ namespace StarlightStageProducer {
 			List<Deck> deckRank = new List<Deck>();
 			foreach (Idol guest in guests) {
 				foreach (Idol leader in myIdols) {
+                    if (guest.CenterSkillCondition != leader.CenterSkillCondition) continue;
+
 					Idol[] effectIdols = new Idol[] { leader, guest };
 
 					Bonus bonus = getBonus(musicType, burstMode, effectIdols);
@@ -127,19 +129,18 @@ namespace StarlightStageProducer {
 
                     int[] skillCount, typeCount;
 
-                    if(leader.CenterSkillType == CenterSkillType.Fes || guest.CenterSkillType == CenterSkillType.Fes)
+                    if(leader.CenterSkillCondition == CenterSkillCondition.All)
                     {
-                        typeCount = new int[] { 1, 1, 1, 1 };
+                        typeCount = new int[] { 2, 1, 1, 1 };
                         if(typeCount[getTypeIndex(leader.Type)] != 0)
                         {
                             typeCount[getTypeIndex(leader.Type)]--;
-                            typeCount[getTypeIndex(Type.All)]++;
                         }
-                        if (typeCount[getTypeIndex(guest.Type)] != 0)
-                        {
-                            typeCount[getTypeIndex(guest.Type)]--;
-                            typeCount[getTypeIndex(Type.All)]++;
-                        }
+                    }
+                    else if(leader.CenterSkillCondition != CenterSkillCondition.None)
+                    {
+                        typeCount = new int[] { 0, 0, 0, 0 };
+                        typeCount[getTypeIndex(leader.Type)] += 4;
                     }
                     else typeCount = new int[] { 4, 0, 0, 0 };
 
@@ -267,75 +268,69 @@ namespace StarlightStageProducer {
 
 			if (effectIdols != null) {
 				foreach (Idol effectIdol in effectIdols) {
-					float value = 1;
-					switch (effectIdol.CenterSkillType) {
-						case CenterSkillType.All:
-							value = 8;
-							break;
-                        case CenterSkillType.Fes:
-                            value = 100 / 9;
-                            break;
-						default:
-							value = 10;
-							break;
-					}
+					int value = 0;
+                    if (effectIdol.CenterSkill == CenterSkill.All)
+                    {
+                        if(effectIdol.Rarity == Rarity.SSR && effectIdol.CenterSkillCondition != CenterSkillCondition.None)
+                        {
+                            value = 50;
+                        }
+                        else if (effectIdol.Rarity == Rarity.SSR && effectIdol.CenterSkillCondition == CenterSkillCondition.None)
+                        {
+                            value = 30;
+                        }
+                        else if (effectIdol.Rarity == Rarity.SR && effectIdol.CenterSkillCondition == CenterSkillCondition.None)
+                        {
+                            value = 20;
+                        }
+                        bonus.AddAppeal(effectIdol.Type, AppealType.Vocal, value);
+                        bonus.AddAppeal(effectIdol.Type, AppealType.Dance, value);
+                        bonus.AddAppeal(effectIdol.Type, AppealType.Visual, value);
+                    }
+                    else if (effectIdol.CenterSkill == CenterSkill.Vocal 
+                        || effectIdol.CenterSkill == CenterSkill.Dance || effectIdol.CenterSkill == CenterSkill.Visual)
+                    {
+                        AppealType appealType = AppealType.Vocal;
+                        if (effectIdol.CenterSkill == CenterSkill.Dance) appealType = AppealType.Dance;
+                        if (effectIdol.CenterSkill == CenterSkill.Visual) appealType = AppealType.Visual;
 
-					switch (effectIdol.Rarity) {
-						case Rarity.R:
-							break;
-						case Rarity.SR:
-							value *= 2;
-							break;
-						case Rarity.SSR:
-							value *= 3;
-							break;
-						default:
-							value = 0;
-							break;
-					}
-
-					if (effectIdol.CenterSkillType == CenterSkillType.All || effectIdol.CenterSkillType == CenterSkillType.Fes) {
-						switch (effectIdol.CenterSkill) {
-							case CenterSkill.All:
-								bonus.AddAppeal(Type.All, AppealType.Vocal, (int)value);
-								bonus.AddAppeal(Type.All, AppealType.Dance, (int)value);
-								bonus.AddAppeal(Type.All, AppealType.Visual, (int)value);
-								break;
-
-							case CenterSkill.Vocal:
-								bonus.AddAppeal(Type.All, AppealType.Vocal, (int)(value * 3));
-								break;
-
-							case CenterSkill.Dance:
-								bonus.AddAppeal(Type.All, AppealType.Dance, (int)(value * 3));
-								break;
-
-							case CenterSkill.Visual:
-								bonus.AddAppeal(Type.All, AppealType.Visual, (int)(value * 3));
-								break;
-						}
-					}
-					else {
-						switch (effectIdol.CenterSkill) {
-							case CenterSkill.All:
-								bonus.AddAppeal(effectIdol.Type, AppealType.Vocal, (int)value);
-								bonus.AddAppeal(effectIdol.Type, AppealType.Dance, (int)value);
-								bonus.AddAppeal(effectIdol.Type, AppealType.Visual, (int)value);
-								break;
-
-							case CenterSkill.Vocal:
-								bonus.AddAppeal(effectIdol.Type, AppealType.Vocal, (int)(value * 3));
-								break;
-
-							case CenterSkill.Dance:
-								bonus.AddAppeal(effectIdol.Type, AppealType.Dance, (int)(value * 3));
-								break;
-
-							case CenterSkill.Visual:
-								bonus.AddAppeal(effectIdol.Type, AppealType.Visual, (int)(value * 3));
-								break;
-						}
-					}
+                        if (effectIdol.CenterSkillType == CenterSkillType.All)
+                        {
+                            if(effectIdol.Rarity == Rarity.SSR && effectIdol.CenterSkillCondition == CenterSkillCondition.None)
+                            {
+                                value = 80;
+                            }
+                            else if (effectIdol.Rarity == Rarity.SSR && effectIdol.CenterSkillCondition != CenterSkillCondition.None)
+                            {
+                                value = 100;
+                            }
+                            else if (effectIdol.Rarity == Rarity.SR && effectIdol.CenterSkillCondition == CenterSkillCondition.None)
+                            {
+                                value = 80;
+                            }
+                            else if (effectIdol.Rarity == Rarity.SR && effectIdol.CenterSkillCondition != CenterSkillCondition.None)
+                            {
+                                value = 48;
+                            }
+                            bonus.AddAppeal(Type.All, appealType, value);
+                        }
+                        else
+                        {
+                            if(effectIdol.Rarity == Rarity.SSR)
+                            {
+                                value = 90;
+                            }
+                            else if (effectIdol.Rarity == Rarity.SR)
+                            {
+                                value = 60;
+                            }
+                            else if (effectIdol.Rarity == Rarity.R)
+                            {
+                                value = 30;
+                            }
+                            bonus.AddAppeal(effectIdol.Type, appealType, value);
+                        }
+                    }
 				}
 			}
 
