@@ -53,10 +53,10 @@ namespace StarlightStageProducer {
 					idolDeckView.SetIdol(deck.Members[i].Id);
 				}
 
-				textAppeal.ToolTip = string.Format("서포터 목록\n\n{0}", 
+                textAppeal.ToolTip = string.Format("서포터 목록 : \n{0}", 
 					string.Join("\n", deck.Supporters.Select(i => Data.GetIdol(i.Id).Name)));
 			} catch(Exception ex) {
-				//MessageBox.Show(ex.Message);
+				MessageBox.Show(ex.Message);
 			}
 		}
 	}
