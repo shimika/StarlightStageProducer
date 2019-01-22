@@ -34,14 +34,14 @@ namespace StarlightStageProducer {
 				int visual = Convert.ToInt32(node.SelectSingleNode(".//td[@class='etc8']//span[@class='t_passion']").InnerText);
 
 				int id = extractLastNumber(imageUrl, "/");
-				int infoId = extractLastNumber(node.SelectSingleNode(".//a").GetAttributeValue("onmouseover", "0"), "/");
-				string[] names = splitByLine(node.SelectSingleNode(".//td[@class='name left']").InnerHtml);
+				int infoId = extractLastNumber(node.SelectSingleNode(".//div[@class='cardName']//a").GetAttributeValue("onmouseover", "0"), "/");
+				string[] names = splitByLine(node.SelectSingleNode(".//div[@class='cardName']//a").InnerHtml);
 				string[] skills = splitByLine(node.SelectSingleNode(".//td[@class='field4']").InnerHtml);
 
 				idols.Add(new Idol(id, rarity, imageUrl, infoId, type, vocal, dance, visual, names, skills));
 
 				//Console.WriteLine(string.Format("{0} {1} {2} {3} {4}", rarity, type, vocal, dance, visual));
-				//Console.WriteLine(string.Format("{0}\n{1}\n{2}  {3} {4}", skills[0], skills[1], names[0], id, infoId));
+				Console.WriteLine(string.Format("{0}\n{1}\n{2}  {3} {4}", skills[0], skills[1], names[0], id, infoId));
 				//Console.WriteLine();
 
 				network.SendLoadingStatus(string.Format("Database downloading... {0} / {1}", i + 1, nodeList.Count));

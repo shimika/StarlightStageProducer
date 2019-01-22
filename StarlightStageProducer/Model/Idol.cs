@@ -17,7 +17,8 @@ namespace StarlightStageProducer {
 		public string OriginalName { get; internal set; }
 		public CenterSkill CenterSkill { get; internal set; }
 		public CenterSkillType CenterSkillType { get; internal set; }
-		public Skill Skill { get; internal set; }
+        public CenterSkillCondition CenterSkillCondition { get; internal set; }
+        public Skill Skill { get; internal set; }
 
 		public string ParsedName { get; internal set; }
 		private string name;
@@ -38,8 +39,9 @@ namespace StarlightStageProducer {
 			this.Type = Type.All;
 			this.Rarity = Rarity.N;
 			this.CenterSkill = CenterSkill.None;
-			this.CenterSkillType = CenterSkillType.All;
-		}
+			this.CenterSkillType = CenterSkillType.Unknown;
+            this.CenterSkillCondition = CenterSkillCondition.None;
+        }
 
 		private T parseEnum<T>(string str) where T : struct, IConvertible {
 			if (!typeof(T).IsEnum) {
@@ -52,7 +54,7 @@ namespace StarlightStageProducer {
 			return (T)Enum.GetValues(typeof(T)).GetValue(0);
 		}
 
-		public Idol(int id, string rarity, int rarityNumber, string type, int vocal, int dance, int visual, string name, string originalName, string centerSkill, string centerSkillType, string skill) {
+		public Idol(int id, string rarity, int rarityNumber, string type, int vocal, int dance, int visual, string name, string originalName, string centerSkill, string centerSkillType, string centerSkillCondition, string skill) {
 			this.Id = id;
 			this.Rarity = parseEnum<Rarity>(rarity);
 			this.RarityNumber = rarityNumber;
@@ -66,9 +68,10 @@ namespace StarlightStageProducer {
 			this.CenterSkill = parseEnum<CenterSkill>(centerSkill);
 			this.Skill = parseEnum<Skill>(skill);
 			this.CenterSkillType = parseEnum<CenterSkillType>(centerSkillType);
-		}
+            this.CenterSkillCondition = parseEnum<CenterSkillCondition>(centerSkillCondition);
+        }
 
-		public Idol(int id, Rarity rarity, int rarityNumber, string imageUrl, int infoId, Type type, int vocal, int dance, int visual, string name, string originalName, CenterSkill centerSkill, CenterSkillType centerSkillType, Skill skill) {
+		public Idol(int id, Rarity rarity, int rarityNumber, string imageUrl, int infoId, Type type, int vocal, int dance, int visual, string name, string originalName, CenterSkill centerSkill, CenterSkillType centerSkillType, CenterSkillCondition centerSkillCondition, Skill skill) {
 			this.Id = id;
 			this.Rarity = rarity;
 			this.RarityNumber = rarityNumber;
@@ -82,7 +85,8 @@ namespace StarlightStageProducer {
 			this.OriginalName = originalName;
 			this.CenterSkill = centerSkill;
 			this.CenterSkillType = centerSkillType;
-			this.Skill = skill;
+            this.CenterSkillCondition = centerSkillCondition;
+            this.Skill = skill;
 		}
 
 		public Idol(int id, string rarity, string imageUrl, int infoId, string type, int vocal, int dance, int visual, string[] names, string[] skills) {
@@ -149,23 +153,43 @@ namespace StarlightStageProducer {
 
 			foreach (string skill in skills) {
 				string[] split = skill.Split(':');
-				//Console.WriteLine("{0} {1}", split[0], split[1]);
+                //Console.WriteLine("{0} {1}", split[0], split[1]);
 
-				string infoScore = Network.GET(string.Format("{0}={1}", Network.InfoEndPoint, infoId));
+                string[] centerSkillSplit = { "센터 효과" };
+                string infoScore = Network.GET(string.Format("{0}={1}", Network.InfoEndPoint, infoId));
 
-				this.CenterSkillType = CenterSkillType.All;
+				this.CenterSkillType = CenterSkillType.Unknown;
+                this.CenterSkillCondition = CenterSkillCondition.None;
 
-                if (infoScore.IndexOf("큐트 아이돌") >= 0) {
+                if (infoScore.IndexOf("큐트 아이돌만 편성") >= 0)
+                {
+                    this.CenterSkillCondition = CenterSkillCondition.Cute;
+                }
+                else if (infoScore.IndexOf("쿨 아이돌만 편성") >= 0)
+                {
+                    this.CenterSkillCondition = CenterSkillCondition.Cool;
+                }
+                else if (infoScore.IndexOf("패션 아이돌만 편성") >= 0)
+                {
+                    this.CenterSkillCondition = CenterSkillCondition.Passion;
+                }
+                else if (infoScore.IndexOf("3 타입 아이돌이 전부 편성") >= 0)
+                {
+                    this.CenterSkillCondition = CenterSkillCondition.All;
+                }
+
+                if (infoScore.IndexOf("큐트 아이돌의") >= 0) {
 					this.CenterSkillType = CenterSkillType.Cute;
-				} else if(infoScore.IndexOf("쿨 아이돌") >= 0) {
+				}
+                else if(infoScore.IndexOf("쿨 아이돌의") >= 0) {
 					this.CenterSkillType = CenterSkillType.Cool;
 				}
-				else if(infoScore.IndexOf("패션 아이돌") >= 0) {
+				else if(infoScore.IndexOf("패션 아이돌의") >= 0) {
 					this.CenterSkillType = CenterSkillType.Passion;
-				}
-                else if (infoScore.IndexOf("3 타입 아이돌") >= 0)
+                }
+                else if (infoScore.IndexOf("모두의") >= 0)
                 {
-                    this.CenterSkillType = CenterSkillType.Fes;
+                    this.CenterSkillType = CenterSkillType.All;
                 }
 
                 if (split[0] == "C") {
@@ -182,7 +206,16 @@ namespace StarlightStageProducer {
 						case "전어필":
 							this.CenterSkill = CenterSkill.All;
 							break;
-						default:
+                        case "라이프UP":
+                            this.CenterSkill = CenterSkill.Life;
+                            break;
+                        case "포춘 프레젠트":
+                            this.CenterSkill = CenterSkill.Present;
+                            break;
+                        case "신데렐라 챰":
+                            this.CenterSkill = CenterSkill.Charm;
+                            break;
+                        default:
 							this.CenterSkill = CenterSkill.None;
 							break;
 					}

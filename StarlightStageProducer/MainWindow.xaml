@@ -45,7 +45,6 @@
 								   Grid.Column="4" 
 								   HorizontalAlignment="Right" 
 								   Size="50" 
-								   ViewMode="Hidden"
 								   Source="Resources/sync.png"
 								   Response="buttonVersionSync_Response"/>
 				<local:ImageButton x:Name="buttonDownload" 
